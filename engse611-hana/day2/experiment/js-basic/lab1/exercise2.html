@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 2: Data Types</title>
+</head>
+<body>
+    <h1>JavaScript Data Types</h1>
+    <div id="output"></div>
+
+    <script>
+        // ตัวอย่าง Data Types ต่างๆ
+        let text = "Hello JavaScript";
+        let number = 42;
+        let decimal = 3.14159;
+        let isActive = true;
+        let emptyValue = null;
+        let notDefined;
+        let studentData = {
+            name: "สมหญิง",
+            age: 19,
+            major: "วิศวกรรมคอมพิวเตอร์"
+        };
+        let subjects = ["Math", "Physics", "Programming"];
+
+        // ตรวจสอบ Data Type ด้วย typeof
+        console.log("=== Data Types ===");
+        console.log("typeof text:", typeof text);           // string
+        console.log("typeof number:", typeof number);       // number
+        console.log("typeof decimal:", typeof decimal);     // number
+        console.log("typeof isActive:", typeof isActive);   // boolean
+        console.log("typeof emptyValue:", typeof emptyValue); // object (!)
+        console.log("typeof notDefined:", typeof notDefined); // undefined
+        console.log("typeof studentData:", typeof studentData); // object
+        console.log("typeof subjects:", typeof subjects);   // object
+
+        // แสดงผลบนหน้าเว็บ
+        let output = document.getElementById('output');
+        output.innerHTML = `
+            <h3>ผลลัพธ์:</h3>
+            <p><strong>ข้อความ:</strong> ${text} (${typeof text})</p>
+            <p><strong>ตัวเลข:</strong> ${number} (${typeof number})</p>
+            <p><strong>ทศนิยม:</strong> ${decimal} (${typeof decimal})</p>
+            <p><strong>Boolean:</strong> ${isActive} (${typeof isActive})</p>
+            <p><strong>Object:</strong> ${JSON.stringify(studentData)} (${typeof studentData})</p>
+            <p><strong>Array:</strong> ${JSON.stringify(subjects)} (${typeof subjects})</p>
+        `;
+
+        // ✨ พิเศษ: typeof null เป็น "object" นี่คือ JavaScript bug ที่มีชื่อเสียง!
+        console.log("⚠️ JavaScript Bug: typeof null =", typeof null);
+    </script>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAB 1: DOM Selectors</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .highlight { background: yellow; padding: 10px; }
+        .box { border: 2px solid #333; padding: 15px; margin: 10px 0; }
+        #special { color: red; font-weight: bold; }
+        .demo-btn { background: #4CAF50; color: white; padding: 10px 20px; 
+                   border: none; border-radius: 5px; margin: 5px; cursor: pointer; }
+        .demo-btn:hover { background: #45a049; }
+    </style>
+</head>
+<body>
+    <h1>🎯 LAB 1: DOM Selectors</h1>
+    
+    <!-- Elements สำหรับทดสอบ -->
+    <div class="box">
+        <h2 id="special">หัวข้อพิเศษ</h2>
+        <p class="highlight">ย่อหน้าที่ 1 - มี class highlight</p>
+        <p>ย่อหน้าที่ 2 - ธรรมดา</p>
+        <p class="highlight">ย่อหน้าที่ 3 - มี class highlight</p>
+    </div>
+
+    <div class="box">
+        <ul id="fruits">
+            <li>แอปเปิ้ล</li>
+            <li>กล้วย</li>
+            <li>ส้ม</li>
+        </ul>
+    </div>
+
+    <!-- ปุ่มทดสอบ -->
+    <div>
+        <button class="demo-btn" onclick="testById()">เลือกด้วย ID</button>
+        <button class="demo-btn" onclick="testByClass()">เลือกด้วย Class</button>
+        <button class="demo-btn" onclick="testByTag()">เลือกด้วย Tag</button>
+        <button class="demo-btn" onclick="testQuerySelector()">querySelector</button>
+        <button class="demo-btn" onclick="showAllMethods()">แสดงทุกวิธี</button>
+    </div>
+
+    <div id="result" style="margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 5px;">
+        <strong>ผลลัพธ์จะแสดงที่นี่</strong>
+    </div>
+
+    <script>
+        // 1. getElementById - เลือกด้วย ID (เลือกได้ 1 ตัว)
+        function testById() {
+            let element = document.getElementById('special');
+            
+            document.getElementById('result').innerHTML = `
+                <h3>getElementById('special'):</h3>
+                <p><strong>Element:</strong> ${element.tagName}</p>
+                <p><strong>เนื้อหา:</strong> "${element.textContent}"</p>
+                <p><strong>ID:</strong> ${element.id}</p>
+                <p><strong>Class:</strong> ${element.className || 'ไม่มี'}</p>
+            `;
+            
+            // เปลี่ยนสีชั่วคราว
+            element.style.background = 'lightblue';
+            setTimeout(() => { element.style.background = ''; }, 2000);
+            
+            console.log('getElementById:', element);
+        }
+
+        // 2. getElementsByClassName - เลือกด้วย Class (เลือกได้หลายตัว)
+        function testByClass() {
+            let elements = document.getElementsByClassName('highlight');
+            
+            let result = `
+                <h3>getElementsByClassName('highlight'):</h3>
+                <p><strong>จำนวน Elements:</strong> ${elements.length} ตัว</p>
+                <p><strong>รายการ:</strong></p>
+                <ul>
+            `;
+            
+            // วนลูปแสดงทุก element
+            for (let i = 0; i < elements.length; i++) {
+                result += `<li>Element ${i}: "${elements[i].textContent}"</li>`;
+                
+                // เปลี่ยนสีทีละตัว
+                elements[i].style.background = 'lightgreen';
+                setTimeout((el) => { el.style.background = 'yellow'; }, 2000, elements[i]);
+            }
+            
+            result += '</ul>';
+            document.getElementById('result').innerHTML = result;
+            
+            console.log('getElementsByClassName:', elements);
+        }
+
+        // 3. getElementsByTagName - เลือกด้วย Tag (เลือกได้หลายตัว)
+        function testByTag() {
+            let paragraphs = document.getElementsByTagName('p');
+            let listItems = document.getElementsByTagName('li');
+            
+            document.getElementById('result').innerHTML = `
+                <h3>getElementsByTagName:</h3>
+                <p><strong>Paragraphs (p):</strong> ${paragraphs.length} ตัว</p>
+                <p><strong>List Items (li):</strong> ${listItems.length} ตัว</p>
+                <h4>เนื้อหา Paragraphs:</h4>
+                <ol>
+                    ${Array.from(paragraphs).map(p => `<li>"${p.textContent}"</li>`).join('')}
+                </ol>
+                <h4>เนื้อหา List Items:</h4>
+                <ol>
+                    ${Array.from(listItems).map(li => `<li>"${li.textContent}"</li>`).join('')}
+                </ol>
+            `;
+            
+            // เปลี่ยนสี paragraphs
+            Array.from(paragraphs).forEach((p, index) => {
+                setTimeout(() => {
+                    p.style.background = 'lightcoral';
+                    setTimeout(() => { p.style.background = ''; }, 1000);
+                }, index * 500);
+            });
+            
+            console.log('Paragraphs:', paragraphs);
+            console.log('List Items:', listItems);
+        }
+
+        // 4. querySelector & querySelectorAll - เลือกด้วย CSS Selector (ทันสมัย)
+        function testQuerySelector() {
+            // querySelector - เลือกตัวแรกที่เจอ
+            let firstHighlight = document.querySelector('.highlight');
+            
+            // querySelectorAll - เลือกทุกตัว
+            let allHighlights = document.querySelectorAll('.highlight');
+            let boxParagraphs = document.querySelectorAll('.box p');
+            
+            document.getElementById('result').innerHTML = `
+                <h3>querySelector & querySelectorAll:</h3>
+                <p><strong>querySelector('.highlight'):</strong> "${firstHighlight.textContent}"</p>
+                <p><strong>querySelectorAll('.highlight'):</strong> ${allHighlights.length} ตัว</p>
+                <p><strong>querySelectorAll('.box p'):</strong> ${boxParagraphs.length} ตัว</p>
+                
+                <h4>CSS Selectors ที่ใช้ได้:</h4>
+                <ul>
+                    <li><code>.class</code> - เลือกด้วย class</li>
+                    <li><code>#id</code> - เลือกด้วย id</li>
+                    <li><code>tag</code> - เลือกด้วย tag name</li>
+                    <li><code>.class p</code> - เลือก p ที่อยู่ใน .class</li>
+                    <li><code>p:first-child</code> - เลือก p ลูกคนแรก</li>
+                </ul>
+            `;
+            
+            // เปลี่ยนสีด้วย forEach
+            allHighlights.forEach((el, index) => {
+                setTimeout(() => {
+                    el.style.background = 'orange';
+                    setTimeout(() => { el.style.background = 'yellow'; }, 1000);
+                }, index * 300);
+            });
+            
+            console.log('querySelector:', firstHighlight);
+            console.log('querySelectorAll:', allHighlights);
+        }
+
+        // แสดงสรุปทุกวิธี
+        function showAllMethods() {
+            document.getElementById('result').innerHTML = `
+                <h3>🎯 สรุป DOM Selection Methods:</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr style="background: #f0f0f0;">
+                        <th style="border: 1px solid #ddd; padding: 10px;">Method</th>
+                        <th style="border: 1px solid #ddd; padding: 10px;">การใช้งาน</th>
+                        <th style="border: 1px solid #ddd; padding: 10px;">ผลลัพธ์</th>
+                        <th style="border: 1px solid #ddd; padding: 10px;">แนะนำ</th>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 10px;"><code>getElementById()</code></td>
+                        <td style="border: 1px solid #ddd; padding: 10px;">เลือกด้วย ID</td>
+                        <td style="border: 1px solid #ddd; padding: 10px;">1 Element</td>
+                        <td style="border: 1px solid #ddd; padding: 10px;">⭐⭐⭐</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 10px;"><code>getElementsByClassName()</code></td>
+                        <td style="border: 1px solid #ddd; padding: 10px;">เลือกด้วย Class</td>
+                        <td style="border: 1px solid #ddd; padding: 10px;">HTMLCollection</td>
+                        <td style="border: 1px solid #ddd; padding: 10px;">⭐⭐</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 10px;"><code>getElementsByTagName()</code></td>
+                        <td style="border: 1px solid #ddd; padding: 10px;">เลือกด้วย Tag</td>
+                        <td style="border: 1px solid #ddd; padding: 10px;">HTMLCollection</td>
+                        <td style="border: 1px solid #ddd; padding: 10px;">⭐</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 10px;"><code>querySelector()</code></td>
+                        <td style="border: 1px solid #ddd; padding: 10px;">CSS Selector (ตัวแรก)</td>
+                        <td style="border: 1px solid #ddd; padding: 10px;">1 Element</td>
+                        <td style="border: 1px solid #ddd; padding: 10px;">⭐⭐⭐⭐</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 10px;"><code>querySelectorAll()</code></td>
+                        <td style="border: 1px solid #ddd; padding: 10px;">CSS Selector (ทุกตัว)</td>
+                        <td style="border: 1px solid #ddd; padding: 10px;">NodeList</td>
+                        <td style="border: 1px solid #ddd; padding: 10px;">⭐⭐⭐⭐⭐</td>
+                    </tr>
+                </table>
+                
+                <div style="margin-top: 15px; padding: 10px; background: #e8f5e8; border-radius: 5px;">
+                    <strong>💡 แนะนำ:</strong> ใช้ <code>querySelector()</code> และ <code>querySelectorAll()</code> 
+                    เพราะยืดหยุ่นที่สุดและใช้ CSS Selector ได้
+                </div>
+            `;
+            
+            console.log('=== DOM Selection Summary ===');
+            console.log('1. getElementById - เลือก 1 ตัวด้วย ID');
+            console.log('2. getElementsByClassName - เลือกหลายตัวด้วย Class');
+            console.log('3. getElementsByTagName - เลือกหลายตัวด้วย Tag');
+            console.log('4. querySelector - เลือก 1 ตัวด้วย CSS Selector');
+            console.log('5. querySelectorAll - เลือกหลายตัวด้วย CSS Selector');
+        }
+
+        // ทดสอบเบื้องต้น
+        console.log('=== DOM LAB 1 เริ่มต้น ===');
+        console.log('Document:', document);
+        console.log('Body:', document.body);
+        console.log('Title:', document.title);
+    </script>
+</body>
+</html>

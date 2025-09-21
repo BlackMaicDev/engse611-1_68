@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 7: Control Structures</title>
+</head>
+<body>
+    <h1>Control Structures</h1>
+    
+    <div style="background: #f0f0f0; padding: 20px; margin: 10px 0; border-radius: 10px;">
+        <h3>🎯 เกมทายเลข (1-100)</h3>
+        <input type="number" id="guessInput" placeholder="ทายเลข 1-100" min="1" max="100">
+        <button onclick="makeGuess()">ทาย!</button>
+        <button onclick="resetGame()">เกมใหม่</button>
+        <div id="gameResult" style="margin-top: 10px; font-weight: bold;"></div>
+        <div id="gameStats" style="margin-top: 5px; color: #666;"></div>
+    </div>
+
+    <div style="background: #f8f8f8; padding: 20px; margin: 10px 0; border-radius: 10px;">
+        <h3>📊 ระบบคำนวณเกรด</h3>
+        <input type="number" id="scoreInput" placeholder="คะแนน 0-100" min="0" max="100">
+        <button onclick="calculateGrade()">คำนวณเกรด</button>
+        <div id="gradeResult" style="margin-top: 10px;"></div>
+    </div>
+
+    <script>
+        // ตัวแปรสำหรับเกมทายเลข
+        let secretNumber = Math.floor(Math.random() * 100) + 1;
+        let attempts = 0;
+        let maxAttempts = 7;
+        let gameOver = false;
+
+        function makeGuess() {
+            if (gameOver) {
+                alert("เกมจบแล้ว กดเกมใหม่เพื่อเล่นอีกครั้ง");
+                return;
+            }
+
+            const guess = parseInt(document.getElementById('guessInput').value);
+            const resultDiv = document.getElementById('gameResult');
+            const statsDiv = document.getElementById('gameStats');
+
+            // ตรวจสอบ input
+            if (!guess || guess < 1 || guess > 100) {
+                resultDiv.innerHTML = '<span style="color: red;">❌ กรุณาใส่เลข 1-100</span>';
+                return;
+            }
+
+            attempts++;
+            
+            // ตรวจสอบคำตอบ
+            if (guess === secretNumber) {
+                // ถูก!
+                resultDiv.innerHTML = `<span style="color: green;">🎉 ยินดีด้วย! คำตอบคือ ${secretNumber}</span>`;
+                statsDiv.innerHTML = `🏆 คุณทายถูกใน ${attempts} ครั้ง!`;
+                gameOver = true;
+            } else if (attempts >= maxAttempts) {
+                // หมดโอกาส
+                resultDiv.innerHTML = `<span style="color: red;">😞 หมดโอกาสแล้ว! คำตอบคือ ${secretNumber}</span>`;
+                statsDiv.innerHTML = `ใช้โอกาสครบ ${maxAttempts} ครั้งแล้ว`;
+                gameOver = true;
+            } else {
+                // ยังไม่ถูก
+                if (guess < secretNumber) {
+                    resultDiv.innerHTML = `<span style="color: orange;">📈 เลขที่คิดไว้มากกว่า ${guess}</span>`;
+                } else {
+                    resultDiv.innerHTML = `<span style="color: orange;">📉 เลขที่คิดไว้น้อยกว่า ${guess}</span>`;
+                }
+                
+                let remaining = maxAttempts - attempts;
+                statsDiv.innerHTML = `ครั้งที่ ${attempts}/${maxAttempts} - เหลือโอกาส ${remaining} ครั้ง`;
+            }
+
+            // เคลียร์ input
+            document.getElementById('guessInput').value = '';
+        }
+
+        function resetGame() {
+            secretNumber = Math.floor(Math.random() * 100) + 1;
+            attempts = 0;
+            gameOver = false;
+            
+            document.getElementById('gameResult').innerHTML = 'ฉันคิดเลขใหม่แล้ว มาทายดู!';
+            document.getElementById('gameStats').innerHTML = `เดาได้ ${maxAttempts} ครั้ง`;
+            document.getElementById('guessInput').value = '';
+            
+            console.log("เกมใหม่ เลขลับ:", secretNumber); // สำหรับ debug
+        }
+
+        function calculateGrade() {
+            const score = parseFloat(document.getElementById('scoreInput').value);
+            const resultDiv = document.getElementById('gradeResult');
+            
+            // ตรวจสอบ input
+            if (isNaN(score) || score < 0 || score > 100) {
+                resultDiv.innerHTML = '<span style="color: red;">❌ กรุณาใส่คะแนน 0-100</span>';
+                return;
+            }
+            
+            let grade, gpa, status, color;
+            
+            // คำนวณเกรดด้วย if-else if-else
+            if (score >= 80) {
+                grade = "A";
+                gpa = 4.0;
+                status = "เก่งมาก";
+                color = "green";
+            } else if (score >= 75) {
+                grade = "B+";
+                gpa = 3.5;
+                status = "ดีมาก";
+                color = "lightgreen";
+            } else if (score >= 70) {
+                grade = "B";
+                gpa = 3.0;
+                status = "ดี";
+                color = "blue";
+            } else if (score >= 65) {
+                grade = "C+";
+                gpa = 2.5;
+                status = "ค่อนข้างดี";
+                color = "orange";
+            } else if (score >= 60) {
+                grade = "C";
+                gpa = 2.0;
+                status = "ปานกลาง";
+                color = "orange";
+            } else if (score >= 55) {
+                grade = "D+";
+                gpa = 1.5;
+                status = "อ่อน";
+                color = "red";
+            } else if (score >= 50) {
+                grade = "D";
+                gpa = 1.0;
+                status = "อ่อนมาก";
+                color = "red";
+            } else {
+                grade = "F";
+                gpa = 0.0;
+                status = "ตก";
+                color = "darkred";
+            }
+            
+            // แสดงผล
+            resultDiv.innerHTML = `
+                <div style="background: white; padding: 15px; border-radius: 8px; border-left: 5px solid ${color};">
+                    <h4>ผลการประเมิน:</h4>
+                    <p><strong>คะแนน:</strong> ${score}/100</p>
+                    <p><strong>เกรด:</strong> <span style="color: ${color}; font-size: 1.2em;">${grade}</span></p>
+                    <p><strong>GPA:</strong> ${gpa}/4.0</p>
+                    <p><strong>สถานะ:</strong> <span style="color: ${color};">${status}</span></p>
+                </div>
+            `;
+            
+            console.log(`คะแนน ${score} = เกรด ${grade} (GPA ${gpa})`);
+        }
+
+        // เริ่มต้นเกม
+        resetGame();
+        
+        // ทดสอบ Conditional Operators
+        console.log("=== Conditional Operators ===");
+        let x = 10, y = 5;
+        console.log("x > y:", x > y);
+        console.log("x < y:", x < y);
+        console.log("x >= y:", x >= y);
+        console.log("x <= y:", x <= y);
+        console.log("x === y:", x === y);
+        console.log("x !== y:", x !== y);
+        
+        // ทดสอบ Logical Operators
+        console.log("=== Logical Operators ===");
+        console.log("true && false:", true && false);
+        console.log("true || false:", true || false);
+        console.log("!true:", !true);
+        
+        // ทดสอบ Ternary Operator
+        let age = 18;
+        let canVote = age >= 18 ? "ได้" : "ไม่ได้";
+        console.log(`อายุ ${age} ลงคะแนนเสียง${canVote}`);
+    </script>
+</body>
+</html>

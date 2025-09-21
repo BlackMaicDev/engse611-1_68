@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 5: Arrays</title>
+  </head>
+  <body>
+    <h1>JavaScript Arrays</h1>
+
+    <div>
+      <input type="text" id="newStudent" placeholder="ชื่อนักศึกษาใหม่" />
+      <button onclick="addStudent()">เพิ่มนักศึกษา</button>
+      <button onclick="removeLastStudent()">ลบคนสุดท้าย</button>
+      <button onclick="searchStudent()">ค้นหา "สม"</button>
+      <button onclick="showStatistics()">แสดงสถิติ</button>
+    </div>
+
+    <div>
+      <h3>Todo Lists</h3>
+      <input type="text" id="item" placeholder="Item name" />
+      <button onclick="addItem()">add</button>
+      <button onclick="clearItem()">clear</button>
+    </div>
+    <div >
+        <ul id="arrayTodo">
+
+        </ul>
+    </div>
+    <div id="arrayResult"></div>
+
+    <script>
+             // สร้าง Array นักศึกษา
+             let students = ["สมชาย", "สมหญิง", "สมศักดิ์", "สมใจ", "วิภา", "นิพนธ์"];
+
+             // Array คะแนนสอบ (ตรงกับลำดับนักศึกษา)
+             let scores = [85, 92, 78, 88, 96, 82];
+
+             // Array subjects
+             let subjects = ["คณิตศาสตร์", "ฟิสิกส์", "เคมี", "โปรแกรมมิ่ง", "ภาษาอังกฤษ"];
+
+             function displayStudents() {
+                 let result = `<h3>รายชื่อนักศึกษา (${students.length} คน):</h3><ol>`;
+
+                 for (let i = 0; i < students.length; i++) {
+                     result += `<li>${students[i]} - คะแนน: ${scores[i] || 'ไม่มีข้อมูล'}</li>`;
+                 }
+
+                 result += "</ol>";
+                 return result;
+             }
+
+             function addStudent() {
+                 const newName = document.getElementById('newStudent').value.trim();
+
+                 if (newName === "") {
+                     alert("กรุณาใส่ชื่อนักศึกษา");
+                     return;
+                 }
+
+                 // เพิ่มนักศึกษาใหม่
+                 students.push(newName);
+
+                 // เพิ่มคะแนนสุ่ม
+                 const randomScore = Math.floor(Math.random() * 40) + 60; // 60-100
+                 scores.push(randomScore);
+
+                 // เคลียร์ input
+                 document.getElementById('newStudent').value = "";
+
+                 updateDisplay();
+                 console.log("เพิ่มนักศึกษา:", newName, "คะแนน:", randomScore);
+             }
+
+             function removeLastStudent() {
+                 if (students.length === 0) {
+                     alert("ไม่มีนักศึกษาในรายชื่อ");
+                     return;
+                 }
+
+                 // ลบคนสุดท้าย
+                 const removedStudent = students.pop();
+                 const removedScore = scores.pop();
+
+                 updateDisplay();
+                 console.log("ลบนักศึกษา:", removedStudent, "คะแนน:", removedScore);
+             }
+
+             function searchStudent() {
+                 // ค้นหานักศึกษาที่ชื่อมี "สม"
+                 const foundStudents = students.filter(name => name.includes("สม"));
+
+                 let result = displayStudents();
+                 result += `<h4>นักศึกษาที่มี "สม" ในชื่อ (${foundStudents.length} คน):</h4>`;
+                 result += `<p style="color: blue;">${foundStudents.join(", ")}</p>`;
+
+                 document.getElementById('arrayResult').innerHTML = result;
+                 console.log("ผลการค้นหา:", foundStudents);
+             }
+
+             function showStatistics() {
+                 // คำนวณสถิติ
+                 const totalStudents = students.length;
+                 const totalScore = scores.reduce((sum, score) => sum + score, 0);
+                 const averageScore = totalScore / totalStudents;
+                 const maxScore = Math.max(...scores);
+                 const minScore = Math.min(...scores);
+
+                 // หาผู้ที่ได้คะแนนสูงสุด
+                 const topStudentIndex = scores.indexOf(maxScore);
+                 const topStudent = students[topStudentIndex];
+
+                 let result = displayStudents();
+                 result += `
+                     <h4>สถิติคะแนน:</h4>
+                     <ul>
+                         <li>จำนวนนักศึกษา: ${totalStudents} คน</li>
+                         <li>คะแนนเฉลี่ย: ${averageScore.toFixed(2)} คะแนน</li>
+                         <li>คะแนนสูงสุด: ${maxScore} คะแนน (${topStudent})</li>
+                         <li>คะแนนต่ำสุด: ${minScore} คะแนน</li>
+                     </ul>
+                 `;
+
+                 document.getElementById('arrayResult').innerHTML = result;
+
+                 console.log("=== สถิติ ===");
+                 console.log("คะแนนเฉลี่ย:", averageScore.toFixed(2));
+                 console.log("นักศึกษาเก่ง:", topStudent, "คะแนน:", maxScore);
+             }
+
+             function updateDisplay() {
+                 document.getElementById('arrayResult').innerHTML = displayStudents();
+             }
+
+             // แสดงผลเริ่มต้น
+             updateDisplay();
+
+             // ทดสอบ Array Methods
+             console.log("=== Array Methods Demo ===");
+             console.log("students.length:", students.length);
+             console.log("students[0]:", students[0]);
+             console.log("students.join(', '):", students.join(", "));
+             console.log("subjects.slice(0, 3):", subjects.slice(0, 3));
+             console.log("students.indexOf('สมชาย'):", students.indexOf("สมชาย"));
+
+             // Todo Lists
+            let arr = [];
+             function addItem(){
+                 const itemName = document.getElementById('item').value;
+                 
+                 arr.push(itemName)
+                 
+                 for(let i = 0;i <= arr.length;i++){
+                    document.getElementById('arrayTodo').innerHTML = `
+                     <ul>
+                         <li>${arr[i]}</li>
+                     </ul>
+                 `;
+                 }
+
+
+             }
+             function clearItem(){
+                arr.pop()
+             }
+    </script>
+  </body>
+</html>

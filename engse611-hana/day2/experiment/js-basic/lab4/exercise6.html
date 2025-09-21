@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 6: Objects</title>
+</head>
+<body>
+    <h1>JavaScript Objects</h1>
+    
+    <div>
+        <h3>สร้างข้อมูลนักศึกษา:</h3>
+        <input type="text" id="objName" placeholder="ชื่อ" value="สมชาย">
+        <input type="number" id="objAge" placeholder="อายุ" value="20">
+        <input type="text" id="objMajor" placeholder="สาขา" value="วิศวกรรมคอมพิวเตอร์">
+        <input type="number" id="objGPA" placeholder="GPA" value="3.25" step="0.01" min="0" max="4">
+        <br><br>
+        <button onclick="createStudent()">สร้างข้อมูลนักศึกษา</button>
+        <button onclick="showAllStudents()">แสดงนักศึกษาทั้งหมด</button>
+        <button onclick="findTopStudent()">หานักศึกษาเก่ง</button>
+    </div>
+    
+    <div id="objectResult"></div>
+
+    <script>
+        // Object ตัวอย่าง
+        let student1 = {
+            name: "สมหญิง",
+            age: 19,
+            major: "วิศวกรรมคอมพิวเตอร์",
+            gpa: 3.75,
+            subjects: ["โปรแกรมมิ่ง", "คณิตศาสตร์", "ฟิสิกส์"],
+            address: {
+                province: "กรุงเทพ",
+                district: "บางกะปิ",
+                zipcode: "10240"
+            },
+            // Method ใน Object
+            getFullInfo: function() {
+                return `${this.name} อายุ ${this.age} ปี สาขา${this.major} GPA ${this.gpa}`;
+            },
+            getGradeStatus: function() {
+                if (this.gpa >= 3.5) return "เก่งมาก";
+                if (this.gpa >= 3.0) return "ดี";
+                if (this.gpa >= 2.5) return "ปานกลาง";
+                return "ต้องพยายาม";
+            },
+            addSubject: function(subject) {
+                this.subjects.push(subject);
+            }
+        };
+
+        // Array ของ Objects
+        let allStudents = [
+            student1,
+            {
+                name: "สมชาย",
+                age: 20,
+                major: "วิศวกรรมโยธา",
+                gpa: 3.20,
+                subjects: ["สถิติ", "ฟิสิกส์", "คณิตศาสตร์"],
+                address: { province: "เชียงใหม่", district: "เมือง", zipcode: "50000" },
+                getFullInfo: function() {
+                    return `${this.name} อายุ ${this.age} ปี สาขา${this.major} GPA ${this.gpa}`;
+                },
+                getGradeStatus: function() {
+                    if (this.gpa >= 3.5) return "เก่งมาก";
+                    if (this.gpa >= 3.0) return "ดี";
+                    if (this.gpa >= 2.5) return "ปานกลาง";
+                    return "ต้องพยายาม";
+                },
+                addSubject: function(subject) {
+                    this.subjects.push(subject);
+                }
+            }
+        ];
+
+        function createStudent() {
+            const name = document.getElementById('objName').value;
+            const age = parseInt(document.getElementById('objAge').value);
+            const major = document.getElementById('objMajor').value;
+            const gpa = parseFloat(document.getElementById('objGPA').value);
+            
+            // สร้าง Object ใหม่
+            const newStudent = {
+                name: name,
+                age: age,
+                major: major,
+                gpa: gpa,
+                subjects: ["วิชาพื้นฐาน"],
+                address: { province: "ไม่ระบุ", district: "ไม่ระบุ", zipcode: "00000" },
+                getFullInfo: function() {
+                    return `${this.name} อายุ ${this.age} ปี สาขา${this.major} GPA ${this.gpa}`;
+                },
+                getGradeStatus: function() {
+                    if (this.gpa >= 3.5) return "เก่งมาก";
+                    if (this.gpa >= 3.0) return "ดี";
+                    if (this.gpa >= 2.5) return "ปานกลาง";
+                    return "ต้องพยายาม";
+                },
+                addSubject: function(subject) {
+                    this.subjects.push(subject);
+                }
+            };
+            
+            // เพิ่มใน Array
+            allStudents.push(newStudent);
+            
+            // แสดงผล
+            let result = `
+                <h3>สร้างนักศึกษาใหม่เรียบร้อย!</h3>
+                <div style="background: #f0f8ff; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <h4>${newStudent.name}</h4>
+                    <p><strong>ข้อมูลเต็ม:</strong> ${newStudent.getFullInfo()}</p>
+                    <p><strong>สถานะ:</strong> ${newStudent.getGradeStatus()}</p>
+                    <p><strong>วิชาที่เรียน:</strong> ${newStudent.subjects.join(", ")}</p>
+                </div>
+            `;
+            
+            document.getElementById('objectResult').innerHTML = result;
+            
+            console.log("สร้างนักศึกษาใหม่:", newStudent);
+            console.log("จำนวนนักศึกษาทั้งหมด:", allStudents.length);
+        }
+
+        function showAllStudents() {
+            let result = `<h3>นักศึกษาทั้งหมด (${allStudents.length} คน):</h3>`;
+            
+            allStudents.forEach((student, index) => {
+                result += `
+                    <div style="background: #f9f9f9; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                        <strong>${index + 1}. ${student.getFullInfo()}</strong><br>
+                        สถานะ: <span style="color: ${student.gpa >= 3.5 ? 'green' : student.gpa >= 3.0 ? 'blue' : 'orange'};">
+                            ${student.getGradeStatus()}
+                        </span><br>
+                        ที่อยู่: ${student.address.district}, ${student.address.province}<br>
+                        วิชา: ${student.subjects.join(", ")}
+                    </div>
+                `;
+            });
+            
+            document.getElementById('objectResult').innerHTML = result;
+        }
+
+        function findTopStudent() {
+            // หานักศึกษาที่มี GPA สูงสุด
+            let topStudent = allStudents.reduce((prev, current) => {
+                return (prev.gpa > current.gpa) ? prev : current;
+            });
+            
+            // สถิติทั่วไป
+            let totalGPA = allStudents.reduce((sum, student) => sum + student.gpa, 0);
+            let averageGPA = totalGPA / allStudents.length;
+            
+            let result = `
+                <h3>สถิติและนักศึกษาเก่ง:</h3>
+                <div style="background: #fffacd; padding: 15px; border-radius: 8px;">
+                    <h4>🏆 นักศึกษาเก่งที่สุด:</h4>
+                    <p><strong>${topStudent.name}</strong> - GPA: ${topStudent.gpa} (${topStudent.getGradeStatus()})</p>
+                    <p>สาขา: ${topStudent.major}</p>
+                    
+                    <h4>📊 สถิติทั่วไป:</h4>
+                    <ul>
+                        <li>จำนวนนักศึกษา: ${allStudents.length} คน</li>
+                        <li>GPA เฉลี่ย: ${averageGPA.toFixed(2)}</li>
+                        <li>นักศึกษาเก่งมาก (GPA ≥ 3.5): ${allStudents.filter(s => s.gpa >= 3.5).length} คน</li>
+                        <li>นักศึกษาระดับดี (GPA ≥ 3.0): ${allStudents.filter(s => s.gpa >= 3.0).length} คน</li>
+                    </ul>
+                </div>
+            `;
+            
+            document.getElementById('objectResult').innerHTML = result;
+            
+            console.log("นักศึกษาเก่งที่สุด:", topStudent);
+            console.log("GPA เฉลี่ย:", averageGPA.toFixed(2));
+        }
+
+        // ทดสอบ Object Properties และ Methods
+        console.log("=== Object Demo ===");
+        console.log("student1.name:", student1.name);
+        console.log("student1.getFullInfo():", student1.getFullInfo());
+        console.log("student1.address.province:", student1.address.province);
+        
+        // เพิ่มวิชาใหม่
+        student1.addSubject("ภาษาอังกฤษ");
+        console.log("หลังเพิ่มวิชา:", student1.subjects);
+        
+        // Object.keys(), Object.values()
+        console.log("Object keys:", Object.keys(student1));
+        console.log("Object values:", Object.values(student1.address));
+
+
+        const aa = {
+            name: 'Dong',
+            age: 30,
+            scores: {
+                thai: 50,
+                math:60,
+                eng: 25
+            }
+        }
+        console.log('math: ',aa.scores.math)
+        console.log('thai: ',aa.scores.thai)
+        console.log('eng: ',aa.scores.eng)
+    </script>
+</body>
+</html>

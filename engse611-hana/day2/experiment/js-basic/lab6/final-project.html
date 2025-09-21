@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบจัดการนักศึกษา</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .btn {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        .btn:hover {
+            background: #45a049;
+        }
+        .btn-danger {
+            background: #f44336;
+        }
+        .btn-danger:hover {
+            background: #da190b;
+        }
+        .btn-info {
+            background: #2196F3;
+        }
+        .btn-info:hover {
+            background: #0b7dda;
+        }
+        .student-card {
+            background: #f9f9f9;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 5px solid #4CAF50;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎓 ระบบจัดการนักศึกษา</h1>
+        <p>โปรเจคสรุป JavaScript พื้นฐาน - ใช้ Variables, Functions, Arrays, Objects, และ Control Structures</p>
+    </div>
+
+    <div class="container">
+        <h2>📝 เพิ่มนักศึกษาใหม่</h2>
+        <form id="studentForm">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label for="studentName">ชื่อ-นามสกุล:</label>
+                    <input type="text" id="studentName" required>
+                </div>
+                <div class="form-group">
+                    <label for="studentAge">อายุ:</label>
+                    <input type="number" id="studentAge" min="15" max="30" required>
+                </div>
+                <div class="form-group">
+                    <label for="studentMajor">สาขาวิชา:</label>
+                    <select id="studentMajor" required>
+                        <option value="">เลือกสาขา</option>
+                        <option value="วิศวกรรมคอมพิวเตอร์">วิศวกรรมคอมพิวเตอร์</option>
+                        <option value="วิศวกรรมโยธา">วิศวกรรมโยธา</option>
+                        <option value="วิศวกรรมไฟฟ้า">วิศวกรรมไฟฟ้า</option>
+                        <option value="วิศวกรรมเครื่องกล">วิศวกรรมเครื่องกล</option>
+                        <option value="วิศวกรรมอุตสาหการ">วิศวกรรมอุตสาหการ</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="studentGPA">เกรดเฉลี่ย (GPA):</label>
+                    <input type="number" id="studentGPA" min="0" max="4" step="0.01" required>
+                </div>
+            </div>
+            <button type="submit" class="btn">➕ เพิ่มนักศึกษา</button>
+            <button type="button" class="btn btn-info" onclick="generateSampleData()">🎲 สร้างข้อมูลตัวอย่าง</button>
+        </form>
+    </div>
+
+    <div class="container">
+        <h2>📊 สถิติภาพรวม</h2>
+        <div class="stats-grid" id="statsContainer">
+            <!-- สถิติจะถูกสร้างที่นี่ -->
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🔍 ค้นหาและกรองข้อมูล</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+            <input type="text" id="searchName" placeholder="ค้นหาชื่อ">
+            <select id="filterMajor">
+                <option value="">ทุกสาขา</option>
+                <option value="วิศวกรรมคอมพิวเตอร์">วิศวกรรมคอมพิวเตอร์</option>
+                <option value="วิศวกรรมโยธา">วิศวกรรมโยธา</option>
+                <option value="วิศวกรรมไฟฟ้า">วิศวกรรมไฟฟ้า</option>
+                <option value="วิศวกรรมเครื่องกล">วิศวกรรมเครื่องกล</option>
+                <option value="วิศวกรรมอุตสาหการ">วิศวกรรมอุตสาหการ</option>
+            </select>
+            <select id="sortBy">
+                <option value="name">เรียงตามชื่อ</option>
+                <option value="age">เรียงตามอายุ</option>
+                <option value="gpa">เรียงตาม GPA</option>
+            </select>
+        </div>
+        <button class="btn btn-info" onclick="searchAndFilter()">🔍 ค้นหา</button>
+        <button class="btn btn-info" onclick="showTopStudents()">🏆 นักศึกษาเก่ง</button>
+        <button class="btn btn-danger" onclick="clearAllData()">🗑️ ลบข้อมูลทั้งหมด</button>
+    </div>
+
+    <div class="container">
+        <h2>👥 รายชื่อนักศึกษา</h2>
+        <div id="studentsList">
+            <!-- รายชื่อนักศึกษาจะแสดงที่นี่ -->
+        </div>
+    </div>
+
+    <script>
+        // Array สำหรับเก็บข้อมูลนักศึกษาทั้งหมด
+        let students = [];
+        let nextId = 1;
+
+        // Object สำหรับเก็บการตั้งค่าระบบ
+        const systemConfig = {
+            maxStudents: 100,
+            minGPA: 0,
+            maxGPA: 4,
+            gradeScale: {
+                A: { min: 3.5, max: 4.0, status: "เก่งมาก", color: "#4CAF50" },
+                B: { min: 3.0, max: 3.49, status: "ดี", color: "#2196F3" },
+                C: { min: 2.5, max: 2.99, status: "ปานกลาง", color: "#FF9800" },
+                D: { min: 2.0, max: 2.49, status: "อ่อน", color: "#FF5722" },
+                F: { min: 0, max: 1.99, status: "ตก", color: "#f44336" }
+            }
+        };
+
+        // Function สำหรับสร้าง Student Object
+        function createStudent(name, age, major, gpa) {
+            return {
+                id: nextId++,
+                name: name,
+                age: parseInt(age),
+                major: major,
+                gpa: parseFloat(gpa),
+                registeredDate: new Date().toLocaleDateString('th-TH'),
+                getGradeInfo: function() {
+                    for (let grade in systemConfig.gradeScale) {
+                        let scale = systemConfig.gradeScale[grade];
+                        if (this.gpa >= scale.min && this.gpa <= scale.max) {
+                            return {
+                                grade: grade,
+                                status: scale.status,
+                                color: scale.color
+                            };
+                        }
+                    }
+                    return { grade: "N/A", status: "ไม่ระบุ", color: "#666" };
+                },
+                getDisplayInfo: function() {
+                    return `${this.name} (อายุ ${this.age} ปี) - ${this.major} - GPA ${this.gpa}`;
+                }
+            };
+        }
+
+        // Function สำหรับเพิ่มนักศึกษา
+        function addStudent(name, age, major, gpa) {
+            // ตรวจสอบข้อมูล
+            if (!name || !age || !major || !gpa) {
+                alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+                return false;
+            }
+
+            if (students.length >= systemConfig.maxStudents) {
+                alert(`ไม่สามารถเพิ่มนักศึกษาได้ เกินจำนวนสูงสุด ${systemConfig.maxStudents} คน`);
+                return false;
+            }
+
+            // ตรวจสอบชื่อซ้ำ
+            if (students.some(student => student.name.toLowerCase() === name.toLowerCase())) {
+                alert("มีนักศึกษาชื่อนี้อยู่แล้ว");
+                return false;
+            }
+
+            // สร้างและเพิ่มนักศึกษาใหม่
+            let newStudent = createStudent(name, age, major, gpa);
+            students.push(newStudent);
+            
+            console.log("เพิ่มนักศึกษาใหม่:", newStudent);
+            return true;
+        }
+
+        // Function สำหรับลบนักศึกษา
+        function removeStudent(id) {
+            if (confirm("คุณแน่ใจหรือไม่ที่จะลบนักศึกษาคนนี้?")) {
+                let index = students.findIndex(student => student.id === id);
+                if (index !== -1) {
+                    let removed = students.splice(index, 1)[0];
+                    console.log("ลบนักศึกษา:", removed.name);
+                    updateDisplay();
+                }
+            }
+        }
+
+        // Function สำหรับคำนวณสถิติ
+        function calculateStatistics() {
+            if (students.length === 0) {
+                return {
+                    total: 0,
+                    averageAge: 0,
+                    averageGPA: 0,
+                    topGPA: 0,
+                    majorCount: {},
+                    gradeDistribution: {}
+                };
+            }
+
+            let totalAge = students.reduce((sum, student) => sum + student.age, 0);
+            let totalGPA = students.reduce((sum, student) => sum + student.gpa, 0);
+            let topGPA = Math.max(...students.map(student => student.gpa));
+
+            // นับจำนวนตามสาขา
+            let majorCount = {};
+            students.forEach(student => {
+                majorCount[student.major] = (majorCount[student.major] || 0) + 1;
+            });
+
+            // นับจำนวนตามเกรด
+            let gradeDistribution = {};
+            students.forEach(student => {
+                let gradeInfo = student.getGradeInfo();
+                gradeDistribution[gradeInfo.grade] = (gradeDistribution[gradeInfo.grade] || 0) + 1;
+            });
+
+            return {
+                total: students.length,
+                averageAge: (totalAge / students.length).toFixed(1),
+                averageGPA: (totalGPA / students.length).toFixed(2),
+                topGPA: topGPA,
+                majorCount: majorCount,
+                gradeDistribution: gradeDistribution
+            };
+        }
+
+        // Function สำหรับแสดงสถิติ
+        function displayStatistics() {
+            let stats = calculateStatistics();
+            let container = document.getElementById('statsContainer');
+            
+            let html = `
+                <div class="stat-card">
+                    <div class="stat-number">${stats.total}</div>
+                    <div>นักศึกษาทั้งหมด</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.averageAge}</div>
+                    <div>อายุเฉลี่ย (ปี)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.averageGPA}</div>
+                    <div>GPA เฉลี่ย</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.topGPA}</div>
+                    <div>GPA สูงสุด</div>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        // Function สำหรับแสดงรายชื่อนักศึกษา
+        function displayStudents(studentsToShow = students) {
+            let container = document.getElementById('studentsList');
+            
+            if (studentsToShow.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666;">ไม่มีข้อมูลนักศึกษา</p>';
+                return;
+            }
+
+            let html = '';
+            studentsToShow.forEach(student => {
+                let gradeInfo = student.getGradeInfo();
+                html += `
+                    <div class="student-card" style="border-left-color: ${gradeInfo.color};">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h4 style="margin: 0; color: #333;">${student.name}</h4>
+                                <p style="margin: 5px 0; color: #666;">
+                                    อายุ ${student.age} ปี | ${student.major} | 
+                                    GPA ${student.gpa} (<span style="color: ${gradeInfo.color};">${gradeInfo.status}</span>)
+                                </p>
+                                <small style="color: #999;">ลงทะเบียน: ${student.registeredDate}</small>
+                            </div>
+                            <button class="btn btn-danger" onclick="removeStudent(${student.id})">ลบ</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // Function สำหรับอัพเดทการแสดงผล
+        function updateDisplay() {
+            displayStatistics();
+            displayStudents();
+        }
+
+        // Event Handlers
+        document.getElementById('studentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            let name = document.getElementById('studentName').value;
+            let age = document.getElementById('studentAge').value;
+            let major = document.getElementById('studentMajor').value;
+            let gpa = document.getElementById('studentGPA').value;
+            
+            if (addStudent(name, age, major, gpa)) {
+                this.reset(); // เคลียร์ form
+                updateDisplay();
+                alert("เพิ่มนักศึกษาเรียบร้อยแล้ว!");
+            }
+        });
+
+        // Function สำหรับค้นหาและกรองข้อมูล
+        function searchAndFilter() {
+            let nameQuery = document.getElementById('searchName').value.toLowerCase();
+            let majorFilter = document.getElementById('filterMajor').value;
+            let sortBy = document.getElementById('sortBy').value;
+            
+            let filtered = students.filter(student => {
+                let nameMatch = student.name.toLowerCase().includes(nameQuery);
+                let majorMatch = !majorFilter || student.major === majorFilter;
+                return nameMatch && majorMatch;
+            });
+            
+            // เรียงลำดับ
+            filtered.sort((a, b) => {
+                switch (sortBy) {
+                    case 'age':
+                        return a.age - b.age;
+                    case 'gpa':
+                        return b.gpa - a.gpa; // เรียงจากมากไปน้อย
+                    default:
+                        return a.name.localeCompare(b.name, 'th');
+                }
+            });
+            
+            displayStudents(filtered);
+            console.log(`ค้นหาผล: ${filtered.length} คน จาก ${students.length} คน`);
+        }
+
+        // Function สำหรับแสดงนักศึกษาเก่ง
+        function showTopStudents() {
+            let topStudents = students
+                .filter(student => student.gpa >= 3.5)
+                .sort((a, b) => b.gpa - a.gpa);
+                
+            displayStudents(topStudents);
+            console.log(`นักศึกษาเก่ง (GPA ≥ 3.5): ${topStudents.length} คน`);
+        }
+
+        // Function สำหรับสร้างข้อมูลตัวอย่าง
+        function generateSampleData() {
+            if (confirm("จะสร้างข้อมูลตัวอย่าง 10 คน หรือไม่?")) {
+                let sampleStudents = [
+                    ["นายสมชาย ใจดี", 20, "วิศวกรรมคอมพิวเตอร์", 3.75],
+                    ["นางสาวสมหญิง รักเรียน", 19, "วิศวกรรมไฟฟ้า", 3.85],
+                    ["นายสมศักดิ์ มั่นคง", 21, "วิศวกรรมโยธา", 3.25],
+                    ["นางสาวสมใจ เก่งงาม", 20, "วิศวกรรมเครื่องกล", 3.95],
+                    ["นายวิภา ชาญฉลาด", 22, "วิศวกรรมอุตสาหการ", 3.15],
+                    ["นางสาวนิพนธ์ เรียนดี", 19, "วิศวกรรมคอมพิวเตอร์", 3.65],
+                    ["นายกิตติ สุขสม", 21, "วิศวกรรมไฟฟ้า", 2.85],
+                    ["นางสาวมาลี รักษ์สุข", 20, "วิศวกรรมโยธา", 3.45],
+                    ["นายพิชัย ฝันดี", 22, "วิศวกรรมเครื่องกล", 2.95],
+                    ["นางสาวสุดา เก่งมาก", 19, "วิศวกรรมอุตสาหการ", 4.00]
+                ];
+                
+                sampleStudents.forEach(studentData => {
+                    if (students.length < systemConfig.maxStudents) {
+                        addStudent(...studentData);
+                    }
+                });
+                
+                updateDisplay();
+                alert("สร้างข้อมูลตัวอย่างเรียบร้อยแล้ว!");
+            }
+        }
+
+        // Function สำหรับลบข้อมูลทั้งหมด
+        function clearAllData() {
+            if (confirm("คุณแน่ใจหรือไม่ที่จะลบข้อมูลทั้งหมด?")) {
+                students = [];
+                nextId = 1;
+                updateDisplay();
+                
+                // เคลียร์ฟิลเตอร์
+                document.getElementById('searchName').value = '';
+                document.getElementById('filterMajor').value = '';
+                document.getElementById('sortBy').value = 'name';
+                
+                alert("ลบข้อมูลทั้งหมดเรียบร้อยแล้ว!");
+            }
+        }
+
+        // เริ่มต้นระบบ
+        updateDisplay();
+        
+        // แสดงข้อมูลใน Console
+        console.log("=== ระบบจัดการนักศึกษา ===");
+        console.log("ระบบพร้อมใช้งาน!");
+        console.log("การตั้งค่า:", systemConfig);
+        console.log("ลองใช้คำสั่ง: generateSampleData() เพื่อสร้างข้อมูลตัวอย่าง");
+    </script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercise 3: Functions</title>
+  </head>
+  <body>
+    <h1>JavaScript Functions</h1>
+
+    <div>
+      <input
+        type="text"
+        id="studentName"
+        placeholder="ชื่อนักศึกษา"
+        value="สมชาย"
+      />
+      <input
+        type="number"
+        id="score"
+        placeholder="คะแนน"
+        value="85"
+        min="0"
+        max="100"
+      />
+      <button onclick="testFunctions()">ทดสอบ Functions</button>
+    </div>
+
+    <div>
+      <input type="number" id="weight" placeholder="น้ำหนัก" />
+      <input type="number" id="height" placeholder="ส่วนสูง(เมตร)" />
+      <button onclick="submitBMI()">BMI</button>
+    </div>
+
+    <div id="resultBMI"></div>
+    <div id="result"></div>
+
+    <script>
+      // Function Declaration - ประกาศ Function
+      function greetStudent(name) {
+        return "สวัสดี " + name + "!";
+      }
+
+      // Function สำหรับคำนวณเกรด
+      function calculateGrade(score) {
+        if (score >= 80) {
+          return "A";
+        } else if (score >= 70) {
+          return "B";
+        } else if (score >= 60) {
+          return "C";
+        } else if (score >= 50) {
+          return "D";
+        } else {
+          return "F";
+        }
+      }
+
+      // Function สำหรับคำนวณค่าใช้จ่าย
+      function calculateExpenses(tuition, dorm, food, transport) {
+        let total = tuition + dorm + food + transport;
+        return {
+          monthly: total,
+          yearly: total * 12,
+          breakdown: {
+            tuition: tuition,
+            dorm: dorm,
+            food: food,
+            transport: transport,
+          },
+        };
+      }
+
+      // Function ที่เรียกใช้ Functions อื่น
+      function testFunctions() {
+        // ดึงค่าจาก input
+        let name = document.getElementById("studentName").value;
+        let score = parseInt(document.getElementById("score").value);
+
+        // เรียกใช้ Functions
+        let greeting = greetStudent(name);
+        let grade = calculateGrade(score);
+        let expenses = calculateExpenses(15000, 3000, 6000, 1500);
+
+        // แสดงผล
+        document.getElementById("result").innerHTML = `
+                <h3>ผลลัพธ์:</h3>
+                <p><strong>คำทักทาย:</strong> ${greeting}</p>
+                <p><strong>คะแนน ${score} ได้เกรด:</strong> ${grade}</p>
+                <h4>ค่าใช้จ่ายประมาณ:</h4>
+                <ul>
+                    <li>รายเดือน: ${expenses.monthly.toLocaleString()} บาท</li>
+                    <li>รายปี: ${expenses.yearly.toLocaleString()} บาท</li>
+                    <li>ค่าเทอม: ${expenses.breakdown.tuition.toLocaleString()} บาท</li>
+                    <li>ค่าหอพัก: ${expenses.breakdown.dorm.toLocaleString()} บาท</li>
+                </ul>
+            `;
+
+        // แสดงใน Console ด้วย
+        console.log("=== Function Results ===");
+        console.log("Greeting:", greeting);
+        console.log("Grade:", grade);
+        console.log("Expenses:", expenses);
+      }
+
+      // ทดสอบ Functions เบื้องต้น
+      console.log("=== Testing Functions ===");
+      console.log(greetStudent("นักศึกษา"));
+      console.log("Score 95 =", calculateGrade(95));
+      console.log("Score 45 =", calculateGrade(45));
+
+      //Func CalBMI
+      function CalBMI(w, h) {
+        let reuslt = 0;
+        reuslt = w / (h * h);
+        return reuslt;
+      }
+
+      function submitBMI() {
+        const vWeight = parseInt(document.getElementById("weight").value);
+        const vHeight = parseFloat(document.getElementById("height").value);
+        const calBMI = CalBMI(vWeight, vHeight);
+        console.log("BMI is :", calBMI);
+
+        document.getElementById("resultBMI").innerHTML = `
+                <h3>ผลลัพธ์:</h3>
+                <p><strong>Weight:</strong> ${vWeight}</p>
+                <p><strong>Height:</strong> ${vHeight}</p>
+                <h4>Result: ${calBMI}</h4>
+            `;
+      }
+
+      //Multi para
+      function multiParams(v1,v2,v3){
+        console.log('v1: ',v1)
+         console.log('v2: ',v2)
+          console.log('v3: ',v3)
+      }
+      multiParams(1,2,3)
+    </script>
+  </body>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 8: Loops</title>
+</head>
+<body>
+    <h1>JavaScript Loops</h1>
+    
+    <div style="background: #f0f8ff; padding: 20px; margin: 10px 0; border-radius: 10px;">
+        <h3>📊 ตารางสูตรคูณ</h3>
+        <select id="tableNumber">
+            <option value="2">สูตรคูณ 2</option>
+            <option value="3">สูตรคูณ 3</option>
+            <option value="5">สูตรคูณ 5</option>
+            <option value="7">สูตรคูณ 7</option>
+            <option value="9">สูตรคูณ 9</option>
+            <option value="12">สูตรคูณ 12</option>
+        </select>
+        <button onclick="showMultiplicationTable()">แสดงตาราง</button>
+        <div id="tableResult"></div>
+    </div>
+
+    <div style="background: #fff8dc; padding: 20px; margin: 10px 0; border-radius: 10px;">
+        <h3>🔢 ตัวเลขและรูปแบบ</h3>
+        <input type="number" id="patternNumber" placeholder="จำนวน (1-20)" min="1" max="20" value="5">
+        <button onclick="showNumberPatterns()">แสดงรูปแบบ</button>
+        <div id="patternResult"></div>
+    </div>
+
+    <div style="background: #f0fff0; padding: 20px; margin: 10px 0; border-radius: 10px;">
+        <h3>📈 สถิติและการคำนวณ</h3>
+        <button onclick="calculateStatistics()">คำนวณสถิติ 1-100</button>
+        <button onclick="findPrimeNumbers()">หาจำนวนเฉพาะ 1-50</button>
+        <div id="statsResult"></div>
+    </div>
+
+    <script>
+        function showMultiplicationTable() {
+            const number = parseInt(document.getElementById('tableNumber').value);
+            const resultDiv = document.getElementById('tableResult');
+            
+            let table = `<h4>ตารางสูตรคูณ ${number}:</h4>`;
+            table += '<div style="background: white; padding: 15px; border-radius: 8px; margin-top: 10px;">';
+            
+            // for loop พื้นฐาน
+            for (let i = 1; i <= 12; i++) {
+                let result = number * i;
+                table += `<p style="font-family: monospace;">${i} × ${number} = ${result}</p>`;
+            }
+            
+            table += '</div>';
+            resultDiv.innerHTML = table;
+            
+            console.log(`=== สูตรคูณ ${number} ===`);
+            for (let i = 1; i <= 12; i++) {
+                console.log(`${i} × ${number} = ${number * i}`);
+            }
+        }
+
+        function showNumberPatterns() {
+            const n = parseInt(document.getElementById('patternNumber').value);
+            const resultDiv = document.getElementById('patternResult');
+            
+            if (!n || n < 1 || n > 20) {
+                resultDiv.innerHTML = '<span style="color: red;">กรุณาใส่จำนวน 1-20</span>';
+                return;
+            }
+            
+            let output = '<div style="background: white; padding: 15px; border-radius: 8px; margin-top: 10px;">';
+            
+            // รูปแบบ 1: ตัวเลขเรียงกัน
+            output += '<h4>รูปแบบที่ 1: ตัวเลขเรียงกัน</h4>';
+            let pattern1 = '';
+            for (let i = 1; i <= n; i++) {
+                pattern1 += i + ' ';
+            }
+            output += `<p style="font-family: monospace;">${pattern1}</p>`;
+            
+            // รูปแบบ 2: สามเหลี่ยมดาว
+            output += '<h4>รูปแบบที่ 2: สามเหลี่ยมดาว</h4>';
+            for (let i = 1; i <= n; i++) {
+                let stars = '';
+                for (let j = 1; j <= i; j++) {
+                    stars += '⭐ ';
+                }
+                output += `<p style="font-family: monospace;">${stars}</p>`;
+            }
+            
+            // รูปแบบ 3: ตัวเลขสามเหลี่ยม
+            output += '<h4>รูปแบบที่ 3: ตัวเลขสามเหลี่ยม</h4>';
+            for (let i = 1; i <= n; i++) {
+                let numbers = '';
+                for (let j = 1; j <= i; j++) {
+                    numbers += j + ' ';
+                }
+                output += `<p style="font-family: monospace;">${numbers}</p>`;
+            }
+            
+            // รูปแบบ 4: ตัวเลขย้อนกลับ
+            output += '<h4>รูปแบบที่ 4: ตัวเลขย้อนกลับ</h4>';
+            let pattern4 = '';
+            for (let i = n; i >= 1; i--) {
+                pattern4 += i + ' ';
+            }
+            output += `<p style="font-family: monospace;">${pattern4}</p>`;
+            
+            output += '</div>';
+            resultDiv.innerHTML = output;
+        }
+
+        function calculateStatistics() {
+            const resultDiv = document.getElementById('statsResult');
+            
+            // คำนวณสถิติของเลข 1-100
+            let sum = 0;
+            let evenCount = 0;
+            let oddCount = 0;
+            let evenSum = 0;
+            let oddSum = 0;
+            
+            // for loop สำหรับคำนวณ
+            for (let i = 1; i <= 100; i++) {
+                sum += i;
+                
+                if (i % 2 === 0) {
+                    evenCount++;
+                    evenSum += i;
+                } else {
+                    oddCount++;
+                    oddSum += i;
+                }
+            }
+            
+            let average = sum / 100;
+            
+            let output = `
+                <h4>สถิติของตัวเลข 1-100:</h4>
+                <div style="background: white; padding: 15px; border-radius: 8px; margin-top: 10px;">
+                    <p><strong>ผลรวมทั้งหมด:</strong> ${sum.toLocaleString()}</p>
+                    <p><strong>ค่าเฉลี่ย:</strong> ${average}</p>
+                    <p><strong>เลขคู่:</strong> ${evenCount} ตัว, ผลรวม ${evenSum.toLocaleString()}</p>
+                    <p><strong>เลขคี่:</strong> ${oddCount} ตัว, ผลรวม ${oddSum.toLocaleString()}</p>
+                    <p><strong>เลขหารด้วย 5 ลงตัว:</strong> ${Math.floor(100/5)} ตัว</p>
+                    <p><strong>เลขหารด้วย 10 ลงตัว:</strong> ${Math.floor(100/10)} ตัว</p>
+                </div>
+            `;
+            
+            resultDiv.innerHTML = output;
+            
+            console.log("=== สถิติ 1-100 ===");
+            console.log("ผลรวม:", sum);
+            console.log("ค่าเฉลี่ย:", average);
+            console.log("เลขคู่:", evenCount, "ตัว");
+            console.log("เลขคี่:", oddCount, "ตัว");
+        }
+
+        function findPrimeNumbers() {
+            const resultDiv = document.getElementById('statsResult');
+            
+            let primes = [];
+            
+            // หาจำนวนเฉพาะ 1-50
+            for (let num = 2; num <= 50; num++) {
+                let isPrime = true;
+                
+                // ตรวจสอบว่า num เป็นจำนวนเฉพาะหรือไม่
+                for (let i = 2; i <= Math.sqrt(num); i++) {
+                    if (num % i === 0) {
+                        isPrime = false;
+                        break; // ออกจาก loop ทันที
+                    }
+                }
+                
+                if (isPrime) {
+                    primes.push(num);
+                }
+            }
+            
+            let output = `
+                <h4>จำนวนเฉพาะ 1-50:</h4>
+                <div style="background: white; padding: 15px; border-radius: 8px; margin-top: 10px;">
+                    <p><strong>จำนวนเฉพาะ (${primes.length} ตัว):</strong></p>
+                    <p style="font-family: monospace; line-height: 1.8;">${primes.join(', ')}</p>
+                    
+                    <h5>การวิเคราะห์:</h5>
+                    <ul>
+                        <li>จำนวนเฉพาะน้อยที่สุด: ${Math.min(...primes)}</li>
+                        <li>จำนวนเฉพาะมากที่สุด: ${Math.max(...primes)}</li>
+                        <li>ผลรวมจำนวนเฉพาะ: ${primes.reduce((sum, prime) => sum + prime, 0)}</li>
+                        <li>จำนวนเฉพาะที่เป็นเลขคี่: ${primes.filter(p => p % 2 === 1).length} ตัว</li>
+                    </ul>
+                </div>
+            `;
+            
+            resultDiv.innerHTML = output;
+            
+            console.log("=== จำนวนเฉพาะ 1-50 ===");
+            console.log("จำนวนเฉพาะ:", primes);
+            console.log("จำนวน:", primes.length, "ตัว");
+        }
+
+        // ทดสอบ Loop ต่างๆ
+        console.log("=== Loop Examples ===");
+        
+        // for loop
+        console.log("For loop 1-5:");
+        for (let i = 1; i <= 5; i++) {
+            console.log(i);
+        }
+        
+        // while loop
+        console.log("While loop countdown:");
+        let countdown = 5;
+        while (countdown > 0) {
+            console.log(countdown);
+            countdown--;
+        }
+        
+        // do-while loop
+        console.log("Do-while loop:");
+        let x = 1;
+        do {
+            console.log("x =", x);
+            x++;
+        } while (x <= 3);
+        
+        // for...of loop (สำหรับ Array)
+        console.log("For...of with array:");
+        let fruits = ["apple", "banana", "orange"];
+        for (let fruit of fruits) {
+            console.log(fruit);
+        }
+        
+        // for...in loop (สำหรับ Object)
+        console.log("For...in with object:");
+        let student = { name: "สมชาย", age: 20, major: "CS" };
+        for (let key in student) {
+            console.log(key + ":", student[key]);
+        }
+    </script>
+</body>
+</html>
