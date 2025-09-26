@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAB 2: Local Storage Todo</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .header { text-align: center; margin-bottom: 30px; }
+        .add-todo { display: flex; gap: 10px; margin-bottom: 20px; }
+        .add-todo input { flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; }
+        .add-todo button { padding: 12px 20px; background: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; }
+        .todo-item { background: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .todo-item.completed { background: #d4edda; text-decoration: line-through; opacity: 0.7; }
+        .todo-text { flex: 1; }
+        .todo-buttons button { margin-left: 5px; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; }
+        .complete-btn { background: #007bff; color: white; }
+        .delete-btn { background: #dc3545; color: white; }
+        .storage-info { margin-top: 20px; padding: 15px; background: #e9ecef; border-radius: 8px; text-align: center; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 My Todo List</h1>
+            <p>รายการงานที่จำได้ด้วย Local Storage</p>
+        </div>
+
+        <div class="add-todo">
+            <input type="text" id="todoInput" placeholder="เพิ่มงานใหม่..." maxlength="100">
+            <button onclick="addTodo()">เพิ่มงาน</button>
+        </div>
+
+        <div id="todoList">
+            <!-- รายการงานจะแสดงที่นี่ -->
+        </div>
+
+        <div class="storage-info">
+            <div>📊 งานทั้งหมด: <span id="totalCount">0</span> | เสร็จแล้ว: <span id="completedCount">0</span></div>
+            <button onclick="clearAllTodos()" style="margin-top: 10px; padding: 8px 16px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">ลบทั้งหมด</button>
+        </div>
+    </div>
+
+    <script>
+        // ตัวแปรเก็บรายการงาน
+        let todos = [];
+
+        // โหลดข้อมูลจาก Local Storage
+        function loadTodos() {
+            const saved = localStorage.getItem('myTodos');
+            if (saved) {
+                todos = JSON.parse(saved);
+            }
+            displayTodos();
+        }
+
+        // บันทึกข้อมูลลง Local Storage  
+        function saveTodos() {
+            localStorage.setItem('myTodos', JSON.stringify(todos));
+        }
+
+        // เพิ่มงานใหม่
+        function addTodo() {
+            const input = document.getElementById('todoInput');
+            const text = input.value.trim();
+            
+            if (text === '') {
+                alert('กรุณาใส่งานที่ต้องทำ');
+                return;
+            }
+
+            // สร้างงานใหม่
+            const newTodo = {
+                id: Date.now(), // ใช้เวลาเป็น ID
+                text: text,
+                completed: false,
+                date: new Date().toLocaleDateString('th-TH')
+            };
+
+            todos.unshift(newTodo); // เพิ่มที่ด้านบน
+            saveTodos();
+            displayTodos();
+            input.value = '';
+        }
+
+        // แสดงรายการงาน
+        function displayTodos() {
+            const todoList = document.getElementById('todoList');
+            
+            if (todos.length === 0) {
+                todoList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">ยังไม่มีงานในรายการ</p>';
+            } else {
+                todoList.innerHTML = todos.map(todo => `
+                    <div class="todo-item ${todo.completed ? 'completed' : ''}">
+                        <div class="todo-text">
+                            <div>${todo.text}</div>
+                            <small style="color: #666;">เพิ่มเมื่อ: ${todo.date}</small>
+                        </div>
+                        <div class="todo-buttons">
+                            <button class="complete-btn" onclick="toggleComplete(${todo.id})">
+                                ${todo.completed ? 'ยกเลิก' : 'เสร็จ'}
+                            </button>
+                            <button class="delete-btn" onclick="deleteTodo(${todo.id})">ลบ</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            updateStats();
+        }
+
+        // เปลี่ยนสถานะเสร็จ/ไม่เสร็จ
+        function toggleComplete(id) {
+            const todo = todos.find(t => t.id === id);
+            if (todo) {
+                todo.completed = !todo.completed;
+                saveTodos();
+                displayTodos();
+            }
+        }
+
+        // ลบงาน
+        function deleteTodo(id) {
+            if (confirm('ลบงานนี้หรือไม่?')) {
+                todos = todos.filter(t => t.id !== id);
+                saveTodos();
+                displayTodos();
+            }
+        }
+
+        // ลบทั้งหมด
+        function clearAllTodos() {
+            if (confirm('ลบงานทั้งหมด?')) {
+                todos = [];
+                saveTodos();
+                displayTodos();
+            }
+        }
+
+        // อัพเดทสถิติ
+        function updateStats() {
+            const total = todos.length;
+            const completed = todos.filter(t => t.completed).length;
+            
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('completedCount').textContent = completed;
+        }
+
+        // เริ่มต้นแอป
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTodos();
+            
+            // เพิ่มการกด Enter
+            document.getElementById('todoInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addTodo();
+                }
+            });
+        });
+
+        // แสดงข้อมูล Local Storage (สำหรับทดสอบ)
+        function showStorageInfo() {
+            const data = localStorage.getItem('myTodos');
+            console.log('Local Storage Data:', data);
+            alert('ดูข้อมูลใน Console (F12)');
+        }
+    </script>
+</body>
+</html>

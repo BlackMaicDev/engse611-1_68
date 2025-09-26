@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAB 1: Mouse Events</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f2f5; }
+        .demo-section { background: white; padding: 20px; margin: 15px 0; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .demo-btn { background: #4267B2; color: white; padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; margin: 5px; font-size: 16px; }
+        .demo-btn:hover { background: #365899; transform: translateY(-1px); }
+        .demo-btn:active { transform: translateY(0); }
+        .click-target { width: 200px; height: 150px; background: #e3f2fd; border: 3px dashed #2196f3; margin: 20px auto; display: flex; align-items: center; justify-content: center; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; }
+        .click-target:hover { background: #bbdefb; border-color: #1976d2; }
+        .event-log { background: #263238; color: #4caf50; padding: 15px; border-radius: 8px; font-family: monospace; height: 200px; overflow-y: auto; margin: 10px 0; }
+        .counter { font-size: 2em; font-weight: bold; text-align: center; padding: 20px; background: #f8f9fa; border-radius: 8px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🎯 LAB 1: Mouse Events</h1>
+
+    <!-- Section 1: Basic Click Events -->
+    <div class="demo-section">
+        <h3>🖱️ Click Events พื้นฐาน</h3>
+        
+        <div class="click-target" id="click-target">
+            <div>คลิกที่นี่!</div>
+        </div>
+        
+        <div class="counter" id="click-counter">คลิก: 0 ครั้ง</div>
+        
+        <div style="text-align: center;">
+            <button class="demo-btn" onclick="resetCounter()">รีเซ็ตการนับ</button>
+            <button class="demo-btn" onclick="changeTargetColor()">เปลี่ยนสี</button>
+            <button class="demo-btn" onclick="toggleTargetSize()">เปลี่ยนขนาด</button>
+        </div>
+        
+        <div id="event-log" class="event-log">
+            <div>📋 Event Log - เหตุการณ์จะแสดงที่นี่</div>
+        </div>
+    </div>
+
+    <!-- Section 2: Mouse Event Types -->
+    <div class="demo-section">
+        <h3>🐭 Mouse Event Types ต่างๆ</h3>
+        
+        <div id="mouse-area" style="background: #fff3e0; border: 2px solid #ff9800; padding: 30px; border-radius: 10px; text-align: center; margin: 20px 0; cursor: crosshair;">
+            <h4>Mouse Playground</h4>
+            <p>ลองใช้เมาส์ในพื้นที่นี้และดู Events ที่เกิดขึ้น</p>
+            <p id="mouse-info" style="font-family: monospace; color: #666; margin-top: 15px;">
+                พิกัดเมาส์จะแสดงที่นี่
+            </p>
+        </div>
+        
+        <div style="text-align: center;">
+            <button class="demo-btn" onclick="clearEventLog()">ล้าง Log</button>
+            <button class="demo-btn" onclick="toggleMouseTracking()">เปิด/ปิด Mouse Tracking</button>
+        </div>
+    </div>
+
+    <!-- Section 3: Double Click และ Context Menu -->
+    <div class="demo-section">
+        <h3>⚡ Double Click และ Right Click</h3>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div id="double-click-area" style="background: #e8f5e8; border: 2px solid #4caf50; padding: 30px; border-radius: 10px; text-align: center; cursor: pointer;">
+                <h4>Double Click Zone</h4>
+                <p>ดับเบิลคลิกที่นี่</p>
+                <div id="double-click-count" style="font-size: 1.5em; font-weight: bold; color: #2e7d32; margin-top: 10px;">0 ครั้ง</div>
+            </div>
+            
+            <div id="context-menu-area" style="background: #fce4ec; border: 2px solid #e91e63; padding: 30px; border-radius: 10px; text-align: center; cursor: pointer;">
+                <h4>Right Click Zone</h4>
+                <p>คลิกขวาที่นี่</p>
+                <div id="context-menu-count" style="font-size: 1.5em; font-weight: bold; color: #c2185b; margin-top: 10px;">0 ครั้ง</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let clickCount = 0;
+        let doubleClickCount = 0;
+        let contextMenuCount = 0;
+        let mouseTrackingEnabled = true;
+        let colors = ['#e3f2fd', '#f3e5f5', '#e8f5e8', '#fff3e0', '#ffebee'];
+        let currentColorIndex = 0;
+
+        // Event logging function
+        function logEvent(eventType, details = '') {
+            const log = document.getElementById('event-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `[${timestamp}] 🔥 ${eventType} ${details}`;
+            log.appendChild(logEntry);
+            log.scrollTop = log.scrollHeight;
+            
+            console.log(`Event: ${eventType}`, details);
+        }
+
+        // LAB 1.1: Basic Click Events
+        function setupClickTarget() {
+            const target = document.getElementById('click-target');
+            
+            target.addEventListener('click', function(event) {
+                clickCount++;
+                document.getElementById('click-counter').textContent = `คลิก: ${clickCount} ครั้ง`;
+                
+                // เอฟเฟกต์การคลิก
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 150);
+                
+                logEvent('CLICK', `ครั้งที่ ${clickCount} - พิกัด (${event.clientX}, ${event.clientY})`);
+            });
+            
+            // Mouse enter/leave effects
+            target.addEventListener('mouseenter', function() {
+                this.style.boxShadow = '0 8px 25px rgba(33, 150, 243, 0.3)';
+                logEvent('MOUSE ENTER', 'เมาส์เข้าพื้นที่');
+            });
+            
+            target.addEventListener('mouseleave', function() {
+                this.style.boxShadow = 'none';
+                logEvent('MOUSE LEAVE', 'เมาส์ออกจากพื้นที่');
+            });
+        }
+
+        function resetCounter() {
+            clickCount = 0;
+            document.getElementById('click-counter').textContent = 'คลิก: 0 ครั้ง';
+            logEvent('RESET', 'รีเซ็ตตัวนับแล้ว');
+        }
+
+        function changeTargetColor() {
+            const target = document.getElementById('click-target');
+            currentColorIndex = (currentColorIndex + 1) % colors.length;
+            target.style.backgroundColor = colors[currentColorIndex];
+            logEvent('COLOR CHANGE', `เปลี่ยนเป็น ${colors[currentColorIndex]}`);
+        }
+
+        function toggleTargetSize() {
+            const target = document.getElementById('click-target');
+            const isLarge = target.style.width === '300px';
+            
+            if (isLarge) {
+                target.style.width = '200px';
+                target.style.height = '150px';
+                logEvent('SIZE CHANGE', 'เปลี่ยนเป็นขนาดเล็ก');
+            } else {
+                target.style.width = '300px';
+                target.style.height = '200px';
+                logEvent('SIZE CHANGE', 'เปลี่ยนเป็นขนาดใหญ่');
+            }
+        }
+
+        // LAB 1.2: Mouse Event Types
+        function setupMouseArea() {
+            const mouseArea = document.getElementById('mouse-area');
+            const mouseInfo = document.getElementById('mouse-info');
+            
+            // Mouse move tracking
+            mouseArea.addEventListener('mousemove', function(event) {
+                if (mouseTrackingEnabled) {
+                    const rect = this.getBoundingClientRect();
+                    const x = event.clientX - rect.left;
+                    const y = event.clientY - rect.top;
+                    
+                    mouseInfo.textContent = `พิกัดเมาส์: (${Math.round(x)}, ${Math.round(y)}) | Screen: (${event.clientX}, ${event.clientY})`;
+                }
+            });
+            
+            // Mouse down/up
+            mouseArea.addEventListener('mousedown', function(event) {
+                this.style.background = '#ffcc80';
+                logEvent('MOUSE DOWN', `ปุ่ม ${event.button === 0 ? 'ซ้าย' : event.button === 1 ? 'กลาง' : 'ขวา'}`);
+            });
+            
+            mouseArea.addEventListener('mouseup', function(event) {
+                this.style.background = '#fff3e0';
+                logEvent('MOUSE UP', `ปล่อยปุ่ม ${event.button === 0 ? 'ซ้าย' : event.button === 1 ? 'กลาง' : 'ขวา'}`);
+            });
+            
+            // Mouse enter/leave
+            mouseArea.addEventListener('mouseenter', function() {
+                this.style.borderColor = '#f57c00';
+                this.style.borderWidth = '3px';
+                logEvent('MOUSE ENTER', 'เข้าสู่ Mouse Area');
+            });
+            
+            mouseArea.addEventListener('mouseleave', function() {
+                this.style.borderColor = '#ff9800';
+                this.style.borderWidth = '2px';
+                mouseInfo.textContent = 'เมาส์ออกจากพื้นที่แล้ว';
+                logEvent('MOUSE LEAVE', 'ออกจาก Mouse Area');
+            });
+        }
+
+        function clearEventLog() {
+            const log = document.getElementById('event-log');
+            log.innerHTML = '<div>📋 Event Log - เหตุการณ์จะแสดงที่นี่</div>';
+        }
+
+        function toggleMouseTracking() {
+            mouseTrackingEnabled = !mouseTrackingEnabled;
+            const status = mouseTrackingEnabled ? 'เปิด' : 'ปิด';
+            logEvent('TRACKING', `${status} Mouse Tracking`);
+            
+            if (!mouseTrackingEnabled) {
+                document.getElementById('mouse-info').textContent = 'Mouse Tracking ปิดอยู่';
+            }
+        }
+
+        // LAB 1.3: Double Click และ Context Menu
+        function setupDoubleClick() {
+            const area = document.getElementById('double-click-area');
+            
+            area.addEventListener('dblclick', function(event) {
+                doubleClickCount++;
+                document.getElementById('double-click-count').textContent = `${doubleClickCount} ครั้ง`;
+                
+                // เอฟเฟกต์ animation
+                this.style.transform = 'scale(1.1) rotate(5deg)';
+                this.style.background = '#c8e6c9';
+                
+                setTimeout(() => {
+                    this.style.transform = 'scale(1) rotate(0deg)';
+                    this.style.background = '#e8f5e8';
+                }, 300);
+                
+                logEvent('DOUBLE CLICK', `ครั้งที่ ${doubleClickCount} - เวลาห่าง ${event.timeStamp}`);
+            });
+            
+            // Single click สำหรับ feedback
+            area.addEventListener('click', function() {
+                this.style.boxShadow = '0 4px 15px rgba(76, 175, 80, 0.3)';
+                setTimeout(() => {
+                    this.style.boxShadow = 'none';
+                }, 200);
+            });
+        }
+
+        function setupContextMenu() {
+            const area = document.getElementById('context-menu-area');
+            
+            area.addEventListener('contextmenu', function(event) {
+                event.preventDefault(); // ป้องกัน context menu ปกติ
+                
+                contextMenuCount++;
+                document.getElementById('context-menu-count').textContent = `${contextMenuCount} ครั้ง`;
+                
+                // เอฟเฟกต์ animation
+                this.style.transform = 'scale(1.05)';
+                this.style.background = '#f8bbd9';
+                
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                    this.style.background = '#fce4ec';
+                }, 300);
+                
+                logEvent('RIGHT CLICK', `ครั้งที่ ${contextMenuCount} - ป้องกัน context menu`);
+                
+                // แสดงการแจ้งเตือน
+                this.innerHTML = `
+                    <h4>Right Click Zone</h4>
+                    <p>คลิกขวาที่นี่</p>
+                    <div style="font-size: 1.5em; font-weight: bold; color: #c2185b; margin-top: 10px;">${contextMenuCount} ครั้ง</div>
+                    <div style="font-size: 0.9em; color: #ad1457; margin-top: 5px;">Context Menu ถูกป้องกัน!</div>
+                `;
+                
+                setTimeout(() => {
+                    this.innerHTML = `
+                        <h4>Right Click Zone</h4>
+                        <p>คลิกขวาที่นี่</p>
+                        <div style="font-size: 1.5em; font-weight: bold; color: #c2185b; margin-top: 10px;">${contextMenuCount} ครั้ง</div>
+                    `;
+                }, 2000);
+            });
+        }
+
+        // Initialize all mouse events
+        function initializeMouseEvents() {
+            setupClickTarget();
+            setupMouseArea();
+            setupDoubleClick();
+            setupContextMenu();
+            
+            logEvent('INIT', 'Mouse Events ติดตั้งเรียบร้อย');
+        }
+
+        // Start when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeMouseEvents();
+            console.log('=== Mouse Events LAB 1 เริ่มต้น ===');
+        });
+    </script>
+</body>
+</html>

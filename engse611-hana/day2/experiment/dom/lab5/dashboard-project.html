@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Interactive Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+               background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .dashboard { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; 
+                 box-shadow: 0 8px 32px rgba(0,0,0,0.1); text-align: center; }
+        .widget-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+                      gap: 20px; }
+        .widget { background: white; border-radius: 15px; padding: 20px; 
+                 box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+        .widget h3 { color: #2d3748; border-bottom: 2px solid #e2e8f0; 
+                    padding-bottom: 10px; margin-bottom: 15px; }
+        .btn { background: #4299e1; color: white; border: none; padding: 8px 16px; 
+              border-radius: 6px; cursor: pointer; margin: 2px; }
+        .btn:hover { background: #3182ce; }
+        .btn-small { padding: 4px 8px; font-size: 12px; }
+        .btn-danger { background: #e53e3e; }
+        .btn-danger:hover { background: #c53030; }
+        .input-group { margin: 10px 0; }
+        .input-group input, .input-group select { width: 100%; padding: 8px; 
+                                                 border: 1px solid #e2e8f0; border-radius: 6px; }
+        .subject-item { background: #f7fafc; padding: 10px; margin: 5px 0; 
+                       border-radius: 6px; border-left: 4px solid #4299e1; }
+        .note-item { background: #fffaf0; border: 1px solid #fed7aa; padding: 10px; 
+                    margin: 5px 0; border-radius: 6px; }
+        .grade-a { border-left-color: #48bb78; }
+        .grade-b { border-left-color: #4299e1; }
+        .grade-c { border-left-color: #ed8936; }
+        .grade-f { border-left-color: #e53e3e; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); 
+                     gap: 10px; margin: 15px 0; }
+        .stat-card { background: #edf2f7; padding: 15px; border-radius: 8px; text-align: center; }
+        .stat-number { font-size: 1.5em; font-weight: bold; color: #2d3748; }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Header -->
+        <div class="header">
+            <h1>📚 Student Interactive Dashboard</h1>
+            <p>DOM Manipulation Final Project - ควบคุมทุกอย่างด้วย JavaScript</p>
+            <div id="datetime" style="margin-top: 10px; color: #666;"></div>
+        </div>
+
+        <div class="widget-grid">
+            <!-- Widget 1: Subject Manager -->
+            <div class="widget">
+                <h3>📖 จัดการวิชาเรียน</h3>
+                <div class="input-group">
+                    <input type="text" id="subject-name" placeholder="ชื่อวิชา">
+                </div>
+                <div class="input-group">
+                    <input type="number" id="subject-credits" placeholder="หน่วยกิต" min="1" max="4" value="3">
+                </div>
+                <div class="input-group">
+                    <input type="number" id="subject-score" placeholder="คะแนน" min="0" max="100">
+                </div>
+                <button class="btn" onclick="addSubject()">เพิ่มวิชา</button>
+                <button class="btn btn-danger" onclick="clearSubjects()">ล้างทั้งหมด</button>
+                
+                <div class="stats-grid" id="subject-stats"></div>
+                <div id="subjects-list"></div>
+            </div>
+
+            <!-- Widget 2: Quick Notes -->
+            <div class="widget">
+                <h3>📝 บันทึกด่วน</h3>
+                <div class="input-group">
+                    <select id="note-type">
+                        <option value="reminder">💡 เตือนความจำ</option>
+                        <option value="idea">🔥 ไอเดีย</option>
+                        <option value="task">✅ งานที่ต้องทำ</option>
+                        <option value="important">⚠️ สำคัญ</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="note-text" placeholder="เขียนบันทึก...">
+                </div>
+                <button class="btn" onclick="addNote()">เพิ่มบันทึก</button>
+                <button class="btn" onclick="addQuickNotes()">ตัวอย่าง</button>
+                
+                <div id="notes-list"></div>
+            </div>
+
+            <!-- Widget 3: Calculator -->
+            <div class="widget">
+                <h3>🧮 เครื่องคิดเลข GPA</h3>
+                <div id="gpa-calculator">
+                    <p>เพิ่มวิชาในหมวดแรกเพื่อคำนวณ GPA</p>
+                </div>
+                
+                <div style="margin-top: 15px;">
+                    <h4>🎯 เครื่องคิดเลขทั่วไป</h4>
+                    <div class="input-group">
+                        <input type="number" id="calc-num1" placeholder="ตัวเลขที่ 1" value="10">
+                        <select id="calc-operator">
+                            <option value="+">บวก (+)</option>
+                            <option value="-">ลบ (-)</option>
+                            <option value="*">คูณ (×)</option>
+                            <option value="/">หาร (÷)</option>
+                        </select>
+                        <input type="number" id="calc-num2" placeholder="ตัวเลขที่ 2" value="5">
+                    </div>
+                    <button class="btn" onclick="calculate()">คำนวณ</button>
+                    <div id="calc-result" style="margin-top: 10px; font-weight: bold;"></div>
+                </div>
+            </div>
+
+            <!-- Widget 4: Theme Customizer -->
+            <div class="widget">
+                <h3>🎨 ปรับแต่งธีม</h3>
+                <div class="input-group">
+                    <label>สีพื้นหลัง:</label>
+                    <select id="theme-bg" onchange="changeTheme()">
+                        <option value="linear-gradient(135deg, #667eea 0%, #764ba2 100%)">น้ำเงิน-ม่วง</option>
+                        <option value="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">ชมพู-แดง</option>
+                        <option value="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)">ฟ้า-เขียว</option>
+                        <option value="linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)">เขียว-มิ้นท์</option>
+                        <option value="linear-gradient(135deg, #fa709a 0%, #fee140 100%)">ชมพู-เหลือง</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>ขนาดตัวอักษร:</label>
+                    <input type="range" id="font-size" min="12" max="20" value="14" onchange="changeFontSize()">
+                    <span id="font-size-value">14px</span>
+                </div>
+                <div class="input-group">
+                    <label>โหมดมืด:</label>
+                    <input type="checkbox" id="dark-mode" onchange="toggleDarkMode()">
+                </div>
+                
+                <button class="btn" onclick="resetTheme()">รีเซ็ตธีม</button>
+            </div>
+
+            <!-- Widget 5: Digital Clock -->
+            <div class="widget">
+                <h3>🕐 นาฬิกาดิจิทัล</h3>
+                <div id="digital-clock" style="font-size: 2em; text-align: center; 
+                     color: #2d3748; font-family: monospace; margin: 20px 0;"></div>
+                
+                <div style="text-align: center;">
+                    <button class="btn" onclick="toggleClockFormat()">เปลี่ยนรูปแบบ</button>
+                    <button class="btn" onclick="setAlarm()">ตั้งปลุก</button>
+                </div>
+                
+                <div id="alarm-status" style="margin-top: 10px; text-align: center;"></div>
+            </div>
+
+            <!-- Widget 6: Quick Tools -->
+            <div class="widget">
+                <h3>🛠️ เครื่องมือด่วน</h3>
+                
+                <h4>📊 สุ่มข้อมูล:</h4>
+                <button class="btn btn-small" onclick="generateRandomNumber()">เลขสุ่ม 1-100</button>
+                <button class="btn btn-small" onclick="generateRandomColor()">สีสุ่ม</button>
+                <button class="btn btn-small" onclick="generateRandomName()">ชื่อสุ่ม</button>
+                
+                <h4 style="margin-top: 15px;">🔧 ตัวช่วย:</h4>
+                <button class="btn btn-small" onclick="showSystemInfo()">ข้อมูลระบบ</button>
+                <button class="btn btn-small" onclick="exportData()">Export ข้อมูล</button>
+                <button class="btn btn-small" onclick="clearAllData()">ล้างทุกอย่าง</button>
+                
+                <div id="tools-result" style="margin-top: 15px; padding: 10px; 
+                     background: #f7fafc; border-radius: 6px; min-height: 50px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let subjects = [];
+        let notes = [];
+        let clockFormat24 = true;
+        let alarmTime = null;
+
+        // Initialize dashboard
+        function initDashboard() {
+            updateDateTime();
+            updateDigitalClock();
+            updateSubjectStats();
+            updateGPACalculator();
+            
+            // Update time every second
+            setInterval(updateDigitalClock, 1000);
+            setInterval(updateDateTime, 1000);
+            
+            console.log('Dashboard initialized!');
+        }
+
+        // Subject Management
+        function addSubject() {
+            let name = document.getElementById('subject-name').value;
+            let credits = parseInt(document.getElementById('subject-credits').value);
+            let score = parseFloat(document.getElementById('subject-score').value);
+            
+            if (!name || !credits || isNaN(score)) {
+                alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+                return;
+            }
+            
+            let grade = calculateGrade(score);
+            let subject = { name, credits, score, grade, id: Date.now() };
+            
+            subjects.push(subject);
+            
+            // Clear inputs
+            document.getElementById('subject-name').value = '';
+            document.getElementById('subject-score').value = '';
+            
+            updateSubjectsList();
+            updateSubjectStats();
+            updateGPACalculator();
+            
+            console.log('Added subject:', subject);
+        }
+
+        function calculateGrade(score) {
+            if (score >= 80) return 'A';
+            if (score >= 70) return 'B';
+            if (score >= 60) return 'C';
+            if (score >= 50) return 'D';
+            return 'F';
+        }
+
+        function removeSubject(id) {
+            subjects = subjects.filter(s => s.id !== id);
+            updateSubjectsList();
+            updateSubjectStats();
+            updateGPACalculator();
+        }
+
+        function updateSubjectsList() {
+            let container = document.getElementById('subjects-list');
+            
+            if (subjects.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666;">ยังไม่มีวิชาที่เพิ่ม</p>';
+                return;
+            }
+            
+            container.innerHTML = subjects.map(subject => `
+                <div class="subject-item grade-${subject.grade.toLowerCase()}">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>${subject.name}</strong><br>
+                            <small>${subject.credits} หน่วยกิต | คะแนน ${subject.score} | เกรด ${subject.grade}</small>
+                        </div>
+                        <button class="btn btn-danger btn-small" onclick="removeSubject(${subject.id})">ลบ</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateSubjectStats() {
+            let container = document.getElementById('subject-stats');
+            let totalCredits = subjects.reduce((sum, s) => sum + s.credits, 0);
+            let avgScore = subjects.length > 0 ? 
+                (subjects.reduce((sum, s) => sum + s.score, 0) / subjects.length).toFixed(1) : 0;
+            
+            container.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${subjects.length}</div>
+                    <div>วิชา</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${totalCredits}</div>
+                    <div>หน่วยกิต</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${avgScore}</div>
+                    <div>คะแนนเฉลี่ย</div>
+                </div>
+            `;
+        }
+
+        function clearSubjects() {
+            if (confirm('ลบข้อมูลวิชาทั้งหมด?')) {
+                subjects = [];
+                updateSubjectsList();
+                updateSubjectStats();
+                updateGPACalculator();
+            }
+        }
+
+        // Notes Management
+        function addNote() {
+            let type = document.getElementById('note-type').value;
+            let text = document.getElementById('note-text').value;
+            
+            if (!text) {
+                alert('กรุณาเขียนบันทึก');
+                return;
+            }
+            
+            let note = {
+                type,
+                text,
+                timestamp: new Date().toLocaleString('th-TH'),
+                id: Date.now()
+            };
+            
+            notes.unshift(note); // เพิ่มที่ด้านบน
+            document.getElementById('note-text').value = '';
+            updateNotesList();
+            
+            console.log('Added note:', note);
+        }
+
+        function addQuickNotes() {
+            let quickNotes = [
+                { type: 'reminder', text: 'ทบทวนบทเรียน DOM Manipulation' },
+                { type: 'task', text: 'ทำโปรเจค JavaScript ให้เสร็จ' },
+                { type: 'idea', text: 'สร้างเว็บไซต์ portfolio' }
+            ];
+            
+            quickNotes.forEach(note => {
+                notes.unshift({
+                    ...note,
+                    timestamp: new Date().toLocaleString('th-TH'),
+                    id: Date.now() + Math.random()
+                });
+            });
+            
+            updateNotesList();
+        }
+
+        function removeNote(id) {
+            notes = notes.filter(n => n.id !== id);
+            updateNotesList();
+        }
+
+        function updateNotesList() {
+            let container = document.getElementById('notes-list');
+            
+            if (notes.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666;">ยังไม่มีบันทึก</p>';
+                return;
+            }
+            
+            container.innerHTML = notes.slice(0, 5).map(note => `
+                <div class="note-item">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <div>${note.type === 'reminder' ? '💡' : 
+                                  note.type === 'idea' ? '🔥' : 
+                                  note.type === 'task' ? '✅' : '⚠️'} ${note.text}</div>
+                            <small style="color: #666;">${note.timestamp}</small>
+                        </div>
+                        <button class="btn btn-danger btn-small" onclick="removeNote(${note.id})">×</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            if (notes.length > 5) {
+                container.innerHTML += `<p style="text-align: center; color: #666;">และอีก ${notes.length - 5} รายการ...</p>`;
+            }
+        }
+
+        // GPA Calculator
+        function updateGPACalculator() {
+            let container = document.getElementById('gpa-calculator');
+            
+            if (subjects.length === 0) {
+                container.innerHTML = '<p>เพิ่มวิชาในหมวดแรกเพื่อคำนวณ GPA</p>';
+                return;
+            }
+            
+            let totalPoints = 0;
+            let totalCredits = 0;
+            
+            subjects.forEach(subject => {
+                let points = { 'A': 4, 'B': 3, 'C': 2, 'D': 1, 'F': 0 }[subject.grade] || 0;
+                totalPoints += points * subject.credits;
+                totalCredits += subject.credits;
+            });
+            
+            let gpa = totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : 0;
+            let gradeColor = gpa >= 3.5 ? '#48bb78' : gpa >= 3.0 ? '#4299e1' : gpa >= 2.5 ? '#ed8936' : '#e53e3e';
+            
+            container.innerHTML = `
+                <div style="text-align: center; padding: 20px; background: ${gradeColor}; 
+                     color: white; border-radius: 10px;">
+                    <div style="font-size: 2.5em; font-weight: bold;">${gpa}</div>
+                    <div>เกรดเฉลี่ยสะสม (GPA)</div>
+                    <div style="margin-top: 10px; font-size: 0.9em;">
+                        ${totalCredits} หน่วยกิต | ${totalPoints} คะแนนรวม
+                    </div>
+                </div>
+            `;
+        }
+
+        // Calculator
+        function calculate() {
+            let num1 = parseFloat(document.getElementById('calc-num1').value);
+            let num2 = parseFloat(document.getElementById('calc-num2').value);
+            let operator = document.getElementById('calc-operator').value;
+            let result;
+            
+            if (isNaN(num1) || isNaN(num2)) {
+                document.getElementById('calc-result').innerHTML = '❌ กรุณาใส่ตัวเลขที่ถูกต้อง';
+                return;
+            }
+            
+            switch (operator) {
+                case '+': result = num1 + num2; break;
+                case '-': result = num1 - num2; break;
+                case '*': result = num1 * num2; break;
+                case '/': 
+                    if (num2 === 0) {
+                        document.getElementById('calc-result').innerHTML = '❌ ไม่สามารถหารด้วย 0 ได้';
+                        return;
+                    }
+                    result = num1 / num2; 
+                    break;
+            }
+            
+            document.getElementById('calc-result').innerHTML = 
+                `🧮 ผลลัพธ์: ${num1} ${operator} ${num2} = <span style="color: #4299e1;">${result}</span>`;
+            
+            console.log('Calculation:', num1, operator, num2, '=', result);
+        }
+
+        // Theme Management
+        function changeTheme() {
+            let bg = document.getElementById('theme-bg').value;
+            document.body.style.background = bg;
+        }
+
+        function changeFontSize() {
+            let size = document.getElementById('font-size').value;
+            document.body.style.fontSize = size + 'px';
+            document.getElementById('font-size-value').textContent = size + 'px';
+        }
+
+        function toggleDarkMode() {
+            let isDark = document.getElementById('dark-mode').checked;
+            
+            if (isDark) {
+                document.body.style.background = 'linear-gradient(135deg, #2d3748 0%, #1a202c 100%)';
+                document.querySelectorAll('.widget, .header').forEach(el => {
+                    el.style.background = '#2d3748';
+                    el.style.color = 'white';
+                });
+            } else {
+                changeTheme();
+                document.querySelectorAll('.widget, .header').forEach(el => {
+                    el.style.background = 'white';
+                    el.style.color = '';
+                });
+            }
+        }
+
+        function resetTheme() {
+            document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            document.body.style.fontSize = '14px';
+            document.getElementById('theme-bg').value = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            document.getElementById('font-size').value = '14';
+            document.getElementById('font-size-value').textContent = '14px';
+            document.getElementById('dark-mode').checked = false;
+            
+            document.querySelectorAll('.widget, .header').forEach(el => {
+                el.style.background = 'white';
+                el.style.color = '';
+            });
+        }
+
+        // Clock Functions
+        function updateDateTime() {
+            let now = new Date();
+            document.getElementById('datetime').textContent = 
+                now.toLocaleDateString('th-TH', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                }) + ' ' + now.toLocaleTimeString('th-TH');
+        }
+
+        function updateDigitalClock() {
+            let now = new Date();
+            let timeString = clockFormat24 ? 
+                now.toLocaleTimeString('th-TH', { hour12: false }) :
+                now.toLocaleTimeString('th-TH', { hour12: true });
+                
+            document.getElementById('digital-clock').textContent = timeString;
+            
+            // Check alarm
+            if (alarmTime && now.toTimeString().substring(0, 5) === alarmTime) {
+                alert('⏰ ถึงเวลาปลุกแล้ว!');
+                alarmTime = null;
+                updateAlarmStatus();
+            }
+        }
+
+        function toggleClockFormat() {
+            clockFormat24 = !clockFormat24;
+            updateDigitalClock();
+        }
+
+        function setAlarm() {
+            let time = prompt('ตั้งปลุก (รูปแบบ HH:MM):', '09:00');
+            if (time && /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(time)) {
+                alarmTime = time;
+                updateAlarmStatus();
+            } else if (time) {
+                alert('รูปแบบเวลาไม่ถูกต้อง กรุณาใส่ HH:MM');
+            }
+        }
+
+        function updateAlarmStatus() {
+            let status = document.getElementById('alarm-status');
+            status.innerHTML = alarmTime ? 
+                `⏰ ตั้งปลุกไว้เวลา ${alarmTime}` : 
+                'ไม่มีการตั้งปลุก';
+        }
+
+        // Quick Tools
+        function generateRandomNumber() {
+            let num = Math.floor(Math.random() * 100) + 1;
+            document.getElementById('tools-result').innerHTML = `🎲 <strong>เลขสุ่ม:</strong> ${num}`;
+        }
+
+        function generateRandomColor() {
+            let colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8'];
+            let color = colors[Math.floor(Math.random() * colors.length)];
+            document.getElementById('tools-result').innerHTML = 
+                `🎨 <strong>สีสุ่ม:</strong> <span style="background: ${color}; padding: 5px 10px; border-radius: 4px; color: white;">${color}</span>`;
+        }
+
+        function generateRandomName() {
+            let firstNames = ['สมชาย', 'สมหญิง', 'วิชัย', 'สุดา', 'นิพนธ์', 'วิภา', 'ธนา', 'สิริ'];
+            let lastNames = ['ใจดี', 'เก่งงาม', 'รักเรียน', 'มั่นคง', 'ชาญฉลาด', 'สุขสม', 'เจริญ', 'พัฒนา'];
+            let firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+            let lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+            document.getElementById('tools-result').innerHTML = `👤 <strong>ชื่อสุ่ม:</strong> ${firstName} ${lastName}`;
+        }
+
+        function showSystemInfo() {
+            let info = `
+                <strong>📱 ข้อมูลระบบ:</strong><br>
+                เบราว์เซอร์: ${navigator.userAgent.split(' ')[0]}<br>
+                ภาษา: ${navigator.language}<br>
+                ขนาดหน้าจอ: ${screen.width}×${screen.height}<br>
+                เขตเวลา: ${Intl.DateTimeFormat().resolvedOptions().timeZone}<br>
+                Online: ${navigator.onLine ? 'เชื่อมต่อ' : 'ออฟไลน์'}
+            `;
+            document.getElementById('tools-result').innerHTML = info;
+        }
+
+        function exportData() {
+            let data = {
+                subjects: subjects,
+                notes: notes,
+                exportTime: new Date().toISOString(),
+                totalSubjects: subjects.length,
+                totalNotes: notes.length
+            };
+            
+            let dataStr = JSON.stringify(data, null, 2);
+            let dataBlob = new Blob([dataStr], {type:'application/json'});
+            let url = URL.createObjectURL(dataBlob);
+            
+            let link = document.createElement('a');
+            link.href = url;
+            link.download = 'dashboard-data.json';
+            link.click();
+            
+            document.getElementById('tools-result').innerHTML = 
+                '💾 <strong>Export สำเร็จ!</strong><br>ไฟล์ dashboard-data.json ถูกดาวน์โหลดแล้ว';
+        }
+
+        function clearAllData() {
+            if (confirm('ลบข้อมูลทั้งหมดใน Dashboard?')) {
+                subjects = [];
+                notes = [];
+                
+                updateSubjectsList();
+                updateSubjectStats();
+                updateGPACalculator();
+                updateNotesList();
+                
+                document.getElementById('tools-result').innerHTML = 
+                    '🗑️ <strong>ล้างข้อมูลแล้ว!</strong><br>ข้อมูลทั้งหมดถูกลบเรียบร้อย';
+                
+                console.log('All data cleared');
+            }
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Enter key listeners
+            document.getElementById('subject-name').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') document.getElementById('subject-credits').focus();
+            });
+            
+            document.getElementById('subject-credits').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') document.getElementById('subject-score').focus();
+            });
+            
+            document.getElementById('subject-score').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') addSubject();
+            });
+            
+            document.getElementById('note-text').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') addNote();
+            });
+            
+            document.getElementById('calc-num1').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') document.getElementById('calc-num2').focus();
+            });
+            
+            document.getElementById('calc-num2').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') calculate();
+            });
+            
+            console.log('Event listeners registered');
+        });
+
+        // Initialize dashboard when page loads
+        initDashboard();
+        
+        console.log('=== Student Dashboard Loaded ===');
+        console.log('🚀 Welcome to Interactive Dashboard!');
+        console.log('💡 Features: Subject Manager, Notes, GPA Calculator, Theme Customizer, Clock, Tools');
+    </script>
+</body>
+</html>

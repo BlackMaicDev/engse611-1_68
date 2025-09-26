@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAB 4: Event Bubbling และ Delegation</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f2f5; }
+        .demo-section { background: white; padding: 20px; margin: 15px 0; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .nested-demo { background: #ffe0e6; border: 3px solid #ff69b4; padding: 20px; border-radius: 10px; margin: 20px; cursor: pointer; }
+        .nested-demo .level2 { background: #e0f0ff; border: 3px solid #4169e1; padding: 15px; border-radius: 8px; margin: 15px; }
+        .nested-demo .level3 { background: #e0ffe0; border: 3px solid #32cd32; padding: 10px; border-radius: 6px; margin: 10px; }
+        .nested-demo .level4 { background: #fff0e0; border: 3px solid #ffa500; padding: 8px; border-radius: 4px; margin: 8px; }
+        .event-log { background: #1e1e1e; color: #00ff00; padding: 15px; border-radius: 8px; font-family: monospace; height: 200px; overflow-y: auto; margin: 15px 0; }
+        .control-btn { background: #007bff; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; margin: 5px; }
+        .control-btn:hover { background: #0056b3; }
+        .todo-container { background: #f8f9fa; border: 2px dashed #6c757d; padding: 20px; border-radius: 10px; min-height: 200px; }
+        .todo-item { background: white; border: 1px solid #dee2e6; padding: 10px; margin: 5px 0; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
+        .todo-item.completed { background: #d4edda; text-decoration: line-through; opacity: 0.7; }
+        .btn-small { padding: 4px 8px; font-size: 12px; margin: 0 2px; }
+    </style>
+</head>
+<body>
+    <h1>🔄 LAB 4: Event Bubbling และ Delegation</h1>
+
+    <!-- Section 1: Event Bubbling Demo -->
+    <div class="demo-section">
+        <h3>🔥 Event Bubbling Demonstration</h3>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <h4>📦 Nested Elements:</h4>
+                <div class="nested-demo" id="level1" data-level="1">
+                    Level 1 - Grandparent (ชมพู)
+                    <div class="level2" id="level2" data-level="2">
+                        Level 2 - Parent (น้ำเงิน)
+                        <div class="level3" id="level3" data-level="3">
+                            Level 3 - Child (เขียว)
+                            <div class="level4" id="level4" data-level="4">
+                                Level 4 - Target (ส้ม)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 15px;">
+                    <button class="control-btn" onclick="clearBubbleLog()">ล้าง Log</button>
+                    <button class="control-btn" onclick="toggleCapturing()">เปิด/ปิด Capturing</button>
+                    <button class="control-btn" onclick="demonstratePropagation()">Demo อัตโนมัติ</button>
+                </div>
+            </div>
+            
+            <div>
+                <h4>📋 Event Propagation Log:</h4>
+                <div id="bubble-log" class="event-log">
+                    <div>🔥 คลิกที่ elements ด้านซ้ายเพื่อดู event bubbling</div>
+                </div>
+                
+                <div style="background: #fff3cd; padding: 10px; border-radius: 5px; margin-top: 10px; font-size: 14px;">
+                    <strong>💡 ทำความเข้าใจ:</strong><br>
+                    • Event เริ่มจาก Target → Bubble ขึ้นไปหา Parent<br>
+                    • ลำดับ: Target → Child → Parent → Grandparent<br>
+                    • ใช้ stopPropagation() เพื่อหยุด bubbling
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: Event Delegation -->
+    <div class="demo-section">
+        <h3>🎯 Event Delegation - Dynamic Todo List</h3>
+        
+        <div style="margin-bottom: 15px;">
+            <input type="text" id="todo-input" placeholder="เพิ่ม todo ใหม่..." 
+                   style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 300px;">
+            <button class="control-btn" onclick="addTodo()">เพิ่ม Todo</button>
+            <button class="control-btn" onclick="addMultipleTodos()">เพิ่มหลายรายการ</button>
+            <button class="control-btn" onclick="clearAllTodos()">ล้างทั้งหมด</button>
+        </div>
+        
+        <div id="todo-container" class="todo-container">
+            <p style="text-align: center; color: #6c757d;">Todo items จะแสดงที่นี่</p>
+            <p style="text-align: center; color: #6c757d; font-size: 14px;">ใช้ Event Delegation - ไม่ต้องเพิ่ม listener ให้แต่ละ item</p>
+        </div>
+        
+        <div id="delegation-stats" style="background: #e9ecef; padding: 10px; border-radius: 5px; margin-top: 10px;">
+            <strong>📊 สถิติ:</strong> <span id="todo-count">0</span> รายการ | 
+            <span id="completed-count">0</span> เสร็จแล้ว | 
+            Event Listeners: <span id="listener-count">1</span> ตัว (Event Delegation)
+        </div>
+    </div>
+
+    <!-- Section 3: Custom Events -->
+    <div class="demo-section">
+        <h3>✨ Custom Events</h3>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <h4>🚀 Event Dispatcher:</h4>
+                <button class="control-btn" onclick="dispatchCustomEvent('userLogin')">Dispatch: User Login</button>
+                <button class="control-btn" onclick="dispatchCustomEvent('dataLoaded')">Dispatch: Data Loaded</button>
+                <button class="control-btn" onclick="dispatchCustomEvent('errorOccurred')">Dispatch: Error</button>
+                <button class="control-btn" onclick="dispatchCustomEvent('gameScore')">Dispatch: Game Score</button>
+                
+                <div style="margin-top: 15px;">
+                    <input type="text" id="custom-event-name" placeholder="Custom event name" 
+                           style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 200px;">
+                    <button class="control-btn" onclick="dispatchUserEvent()">Dispatch Custom</button>
+                </div>
+            </div>
+            
+            <div>
+                <h4>🎧 Event Listeners:</h4>
+                <div id="custom-event-log" class="event-log" style="height: 150px;">
+                    <div>🎪 Custom Events จะแสดงที่นี่</div>
+                </div>
+                
+                <div style="margin-top: 10px;">
+                    <button class="control-btn" onclick="clearCustomLog()">ล้าง Log</button>
+                    <button class="control-btn" onclick="showEventListeners()">แสดง Listeners</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let capturingEnabled = false;
+        let todoCounter = 1;
+        let customEventListeners = {};
+
+        // LAB 4.1: Event Bubbling
+        function setupEventBubbling() {
+            const levels = ['level1', 'level2', 'level3', 'level4'];
+            
+            levels.forEach(levelId => {
+                const element = document.getElementById(levelId);
+                
+                // Bubbling phase (default)
+                element.addEventListener('click', function(event) {
+                    logBubbleEvent('BUBBLE', this, event);
+                    
+                    // Visual feedback
+                    this.style.transform = 'scale(0.98)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 150);
+                }, false);
+                
+                // Capturing phase (optional)
+                element.addEventListener('click', function(event) {
+                    if (capturingEnabled) {
+                        logBubbleEvent('CAPTURE', this, event);
+                    }
+                }, true);
+            });
+        }
+
+        function logBubbleEvent(phase, element, event) {
+            const log = document.getElementById('bubble-log');
+            const level = element.dataset.level;
+            const levelNames = {
+                '1': 'Grandparent',
+                '2': 'Parent', 
+                '3': 'Child',
+                '4': 'Target'
+            };
+            
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.innerHTML = `[${timestamp}] ${phase}: Level ${level} (${levelNames[level]})`;
+            
+            if (phase === 'CAPTURE') {
+                entry.style.color = '#ffff00';
+            } else {
+                entry.style.color = level === '4' ? '#ff6b6b' : '#00ff00';
+            }
+            
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+            
+            console.log(`${phase} - Level ${level}:`, element);
+        }
+
+        function clearBubbleLog() {
+            const log = document.getElementById('bubble-log');
+            log.innerHTML = '<div>🔥 คลิกที่ elements ด้านซ้ายเพื่อดู event bubbling</div>';
+        }
+
+        function toggleCapturing() {
+            capturingEnabled = !capturingEnabled;
+            const status = capturingEnabled ? 'เปิด' : 'ปิด';
+            logBubbleEvent('SYSTEM', { dataset: { level: 'system' } }, { 
+                type: 'toggle',
+                message: `Capturing phase ${status}`
+            });
+        }
+
+        function demonstratePropagation() {
+            clearBubbleLog();
+            
+            const log = document.getElementById('bubble-log');
+            const steps = [
+                'เริ่มต้น Event Propagation Demo...',
+                'Phase 1: Capturing (จากบนลงล่าง)',
+                'Phase 2: Target (ที่ element ที่ถูกคลิก)', 
+                'Phase 3: Bubbling (จากล่างขึ้นบน)',
+                'Demo เสร็จสิ้น - ลองคลิกเอง!'
+            ];
+            
+            let delay = 0;
+            steps.forEach((step, index) => {
+                setTimeout(() => {
+                    const entry = document.createElement('div');
+                    entry.textContent = step;
+                    entry.style.color = '#ffa500';
+                    log.appendChild(entry);
+                    log.scrollTop = log.scrollHeight;
+                }, delay);
+                delay += 1000;
+            });
+        }
+
+        // LAB 4.2: Event Delegation
+        function setupEventDelegation() {
+            const container = document.getElementById('todo-container');
+            
+            // Single event listener for all todos (Event Delegation)
+            container.addEventListener('click', function(event) {
+                const target = event.target;
+                
+                // Handle complete button
+                if (target.classList.contains('complete-btn')) {
+                    const todoItem = target.closest('.todo-item');
+                    todoItem.classList.toggle('completed');
+                    target.textContent = todoItem.classList.contains('completed') ? '↺' : '✓';
+                    updateTodoStats();
+                    
+                    console.log('Todo completed via delegation:', todoItem);
+                }
+                
+                // Handle delete button
+                if (target.classList.contains('delete-btn')) {
+                    const todoItem = target.closest('.todo-item');
+                    todoItem.remove();
+                    updateTodoStats();
+                    
+                    console.log('Todo deleted via delegation:', todoItem);
+                }
+                
+                // Handle edit button
+                if (target.classList.contains('edit-btn')) {
+                    const todoItem = target.closest('.todo-item');
+                    const textSpan = todoItem.querySelector('.todo-text');
+                    const newText = prompt('แก้ไขข้อความ:', textSpan.textContent);
+                    
+                    if (newText && newText.trim()) {
+                        textSpan.textContent = newText.trim();
+                    }
+                    
+                    console.log('Todo edited via delegation:', todoItem);
+                }
+            });
+            
+            // Double click to edit (Event Delegation)
+            container.addEventListener('dblclick', function(event) {
+                const todoItem = event.target.closest('.todo-item');
+                if (todoItem) {
+                    const textSpan = todoItem.querySelector('.todo-text');
+                    const newText = prompt('แก้ไขข้อความ (Double Click):', textSpan.textContent);
+                    
+                    if (newText && newText.trim()) {
+                        textSpan.textContent = newText.trim();
+                    }
+                }
+            });
+        }
+
+        function addTodo() {
+            const input = document.getElementById('todo-input');
+            const text = input.value.trim();
+            
+            if (!text) {
+                alert('กรุณาใส่ข้อความ todo');
+                return;
+            }
+            
+            createTodoElement(text);
+            input.value = '';
+            updateTodoStats();
+        }
+
+        function createTodoElement(text) {
+            const container = document.getElementById('todo-container');
+            
+            // Remove placeholder text
+            if (container.children.length === 2) {
+                container.innerHTML = '';
+            }
+            
+            const todoItem = document.createElement('div');
+            todoItem.className = 'todo-item';
+            todoItem.innerHTML = `
+                <span class="todo-text">${text}</span>
+                <div>
+                    <button class="control-btn btn-small complete-btn">✓</button>
+                    <button class="control-btn btn-small edit-btn" style="background: #ffc107;">✏️</button>
+                    <button class="control-btn btn-small delete-btn" style="background: #dc3545;">🗑️</button>
+                </div>
+            `;
+            
+            container.appendChild(todoItem);
+            
+            // Animation
+            todoItem.style.opacity = '0';
+            todoItem.style.transform = 'translateX(-20px)';
+            setTimeout(() => {
+                todoItem.style.transition = 'all 0.3s ease';
+                todoItem.style.opacity = '1';
+                todoItem.style.transform = 'translateX(0)';
+            }, 10);
+        }
+
+        function addMultipleTodos() {
+            const sampleTodos = [
+                'เรียน JavaScript Event Handling',
+                'ทำแบบฝึกหัด DOM Manipulation', 
+                'อ่านเอกสาร Web APIs',
+                'สร้างโปรเจค Interactive Website',
+                'ฝึกใช้ Event Delegation'
+            ];
+            
+            sampleTodos.forEach((todo, index) => {
+                setTimeout(() => {
+                    createTodoElement(todo);
+                    updateTodoStats();
+                }, index * 200);
+            });
+        }
+
+        function clearAllTodos() {
+            const container = document.getElementById('todo-container');
+            container.innerHTML = `
+                <p style="text-align: center; color: #6c757d;">Todo items จะแสดงที่นี่</p>
+                <p style="text-align: center; color: #6c757d; font-size: 14px;">ใช้ Event Delegation - ไม่ต้องเพิ่ม listener ให้แต่ละ item</p>
+            `;
+            updateTodoStats();
+        }
+
+        function updateTodoStats() {
+            const todos = document.querySelectorAll('.todo-item');
+            const completed = document.querySelectorAll('.todo-item.completed');
+            
+            document.getElementById('todo-count').textContent = todos.length;
+            document.getElementById('completed-count').textContent = completed.length;
+            document.getElementById('listener-count').textContent = '1';
+        }
+
+        // LAB 4.3: Custom Events
+        function setupCustomEvents() {
+            // Register custom event listeners
+            const eventTypes = ['userLogin', 'dataLoaded', 'errorOccurred', 'gameScore'];
+            
+            eventTypes.forEach(eventType => {
+                document.addEventListener(eventType, function(event) {
+                    logCustomEvent(eventType, event.detail);
+                });
+                
+                customEventListeners[eventType] = true;
+            });
+            
+            // Generic custom event listener
+            document.addEventListener('customUserEvent', function(event) {
+                logCustomEvent('customUserEvent', event.detail);
+            });
+        }
+
+        function dispatchCustomEvent(eventType) {
+            let detail = {};
+            
+            switch (eventType) {
+                case 'userLogin':
+                    detail = { 
+                        username: 'student123', 
+                        timestamp: Date.now(),
+                        sessionId: Math.random().toString(36).substr(2, 9)
+                    };
+                    break;
+                case 'dataLoaded':
+                    detail = { 
+                        dataSize: Math.floor(Math.random() * 1000) + 100,
+                        loadTime: Math.floor(Math.random() * 500) + 50,
+                        status: 'success'
+                    };
+                    break;
+                case 'errorOccurred':
+                    detail = { 
+                        errorCode: 'JS_' + Math.floor(Math.random() * 999),
+                        message: 'Simulated error for demo',
+                        severity: 'warning'
+                    };
+                    break;
+                case 'gameScore':
+                    detail = { 
+                        score: Math.floor(Math.random() * 10000),
+                        level: Math.floor(Math.random() * 10) + 1,
+                        player: 'Player1'
+                    };
+                    break;
+            }
+            
+            const customEvent = new CustomEvent(eventType, { detail });
+            document.dispatchEvent(customEvent);
+            
+            console.log('Dispatched custom event:', eventType, detail);
+        }
+
+        function dispatchUserEvent() {
+            const eventName = document.getElementById('custom-event-name').value.trim();
+            
+            if (!eventName) {
+                alert('กรุณาใส่ชื่อ event');
+                return;
+            }
+            
+            const detail = {
+                eventName: eventName,
+                timestamp: Date.now(),
+                userData: { message: 'Custom event from user input' }
+            };
+            
+            const customEvent = new CustomEvent('customUserEvent', { detail });
+            document.dispatchEvent(customEvent);
+            
+            document.getElementById('custom-event-name').value = '';
+        }
+
+        function logCustomEvent(eventType, detail) {
+            const log = document.getElementById('custom-event-log');
+            const timestamp = new Date().toLocaleTimeString();
+            
+            const entry = document.createElement('div');
+            entry.innerHTML = `[${timestamp}] 🎪 ${eventType}`;
+            
+            if (detail) {
+                const detailDiv = document.createElement('div');
+                detailDiv.innerHTML = `   📋 ${JSON.stringify(detail)}`;
+                detailDiv.style.color = '#ffff00';
+                detailDiv.style.fontSize = '12px';
+                detailDiv.style.marginLeft = '20px';
+                log.appendChild(entry);
+                log.appendChild(detailDiv);
+            } else {
+                log.appendChild(entry);
+            }
+            
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function clearCustomLog() {
+            const log = document.getElementById('custom-event-log');
+            log.innerHTML = '<div>🎪 Custom Events จะแสดงที่นี่</div>';
+        }
+
+        function showEventListeners() {
+            const listeners = Object.keys(customEventListeners);
+            alert(`🎧 Custom Event Listeners:\n\n${listeners.join('\n')}\n\nรวม ${listeners.length + 1} listeners (+ 1 สำหรับ customUserEvent)`);
+        }
+
+        // Initialize all events
+        function initializeAdvancedEvents() {
+            setupEventBubbling();
+            setupEventDelegation();
+            setupCustomEvents();
+            updateTodoStats();
+            
+            console.log('=== Advanced Events LAB 4 เริ่มต้น ===');
+        }
+
+        // Add Enter key support for inputs
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeAdvancedEvents();
+            
+            // Enter key for todo input
+            document.getElementById('todo-input').addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    addTodo();
+                }
+            });
+            
+            // Enter key for custom event input
+            document.getElementById('custom-event-name').addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    dispatchUserEvent();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

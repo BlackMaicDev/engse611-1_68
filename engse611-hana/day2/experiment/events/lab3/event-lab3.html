@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAB 3: Form Events</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f8f9fa; }
+        .demo-section { background: white; padding: 25px; margin: 15px 0; border-radius: 12px; box-shadow: 0 3px 15px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #495057; }
+        .form-control { width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 16px; transition: all 0.3s ease; }
+        .form-control:focus { outline: none; border-color: #007bff; box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25); }
+        .form-control.valid { border-color: #28a745; background: #f8fff8; }
+        .form-control.invalid { border-color: #dc3545; background: #fff8f8; }
+        .feedback { font-size: 14px; margin-top: 5px; padding: 8px; border-radius: 4px; }
+        .feedback.valid { color: #155724; background: #d4edda; border: 1px solid #c3e6cb; }
+        .feedback.invalid { color: #721c24; background: #f8d7da; border: 1px solid #f5c6cb; }
+        .form-btn { background: #007bff; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; }
+        .form-btn:hover { background: #0056b3; }
+        .form-btn:disabled { background: #6c757d; cursor: not-allowed; }
+        .progress-bar { height: 8px; background: #e9ecef; border-radius: 4px; overflow: hidden; margin: 10px 0; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #ff6b6b, #ffa500, #28a745); transition: width 0.3s ease; }
+        .event-monitor { background: #2c3e50; color: #2ecc71; padding: 15px; border-radius: 8px; font-family: monospace; height: 200px; overflow-y: auto; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <h1>📝 LAB 3: Form Events</h1>
+
+    <!-- Section 1: Registration Form -->
+    <div class="demo-section">
+        <h3>📋 Registration Form with Real-time Validation</h3>
+        
+        <form id="registration-form" novalidate>
+            <div class="form-group">
+                <label for="username">ชื่อผู้ใช้:</label>
+                <input type="text" id="username" class="form-control" name="username" 
+                       placeholder="3-20 ตัวอักษร, a-z, 0-9 เท่านั้น" autocomplete="username">
+                <div id="username-feedback" class="feedback"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">อีเมล:</label>
+                <input type="email" id="email" class="form-control" name="email" 
+                       placeholder="example@domain.com" autocomplete="email">
+                <div id="email-feedback" class="feedback"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">รหัสผ่าน:</label>
+                <input type="password" id="password" class="form-control" name="password" 
+                       placeholder="อย่างน้อย 8 ตัวอักษร" autocomplete="new-password">
+                <div id="password-feedback" class="feedback"></div>
+                <div class="progress-bar">
+                    <div id="password-strength" class="progress-fill" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirm-password">ยืนยันรหัสผ่าน:</label>
+                <input type="password" id="confirm-password" class="form-control" name="confirmPassword" 
+                       placeholder="พิมพ์รหัสผ่านอีกครั้ง" autocomplete="new-password">
+                <div id="confirm-password-feedback" class="feedback"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="birthdate">วันเกิด:</label>
+                <input type="date" id="birthdate" class="form-control" name="birthdate">
+                <div id="birthdate-feedback" class="feedback"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">เบอร์โทรศัพท์:</label>
+                <input type="tel" id="phone" class="form-control" name="phone" 
+                       placeholder="08X-XXX-XXXX" autocomplete="tel">
+                <div id="phone-feedback" class="feedback"></div>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="terms" name="terms" style="margin-right: 8px;">
+                    ยอมรับข้อตกลงและเงื่อนไข
+                </label>
+                <div id="terms-feedback" class="feedback"></div>
+            </div>
+
+            <button type="submit" id="submit-btn" class="form-btn" disabled>สมัครสมาชิก</button>
+            <button type="button" class="form-btn" onclick="resetForm()" style="background: #6c757d; margin-left: 10px;">รีเซ็ต</button>
+        </form>
+
+        <div id="form-status" style="margin-top: 20px; padding: 15px; border-radius: 8px; background: #e2e3e5;">
+            <strong>📊 สถานะฟอร์ม:</strong> <span id="status-text">รอการกรอกข้อมูล</span>
+        </div>
+    </div>
+
+    <!-- Section 2: Event Monitor -->
+    <div class="demo-section">
+        <h3>🔍 Form Event Monitor</h3>
+        
+        <div style="text-align: center; margin-bottom: 15px;">
+            <button class="form-btn" onclick="clearEventMonitor()">ล้าง Monitor</button>
+            <button class="form-btn" onclick="toggleEventLogging()" style="background: #17a2b8;">เปิด/ปิด Logging</button>
+            <button class="form-btn" onclick="exportFormData()" style="background: #28a745;">Export ข้อมูล</button>
+        </div>
+
+        <div id="event-monitor" class="event-monitor">
+            <div>🔥 Form Event Monitor - Events จะแสดงที่นี่</div>
+        </div>
+    </div>
+
+    <!-- Section 3: Advanced Form Features -->
+    <div class="demo-section">
+        <h3>🚀 Advanced Form Features</h3>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+            <div>
+                <h4>📁 File Upload</h4>
+                <input type="file" id="file-upload" class="form-control" accept=".jpg,.png,.pdf" multiple>
+                <div id="file-feedback" class="feedback"></div>
+                <div id="file-list" style="margin-top: 10px;"></div>
+            </div>
+            
+            <div>
+                <h4>🎚️ Range Input</h4>
+                <label for="skill-level">ระดับทักษะ JavaScript:</label>
+                <input type="range" id="skill-level" min="1" max="10" value="5" 
+                       style="width: 100%; margin: 10px 0;">
+                <div style="display: flex; justify-content: space-between; font-size: 12px;">
+                    <span>เริ่มต้น</span>
+                    <span id="skill-value">5</span>
+                    <span>ผู้เชี่ยวชาญ</span>
+                </div>
+            </div>
+            
+            <div>
+                <h4>🎨 Color Picker</h4>
+                <label for="favorite-color">สีที่ชอบ:</label>
+                <input type="color" id="favorite-color" value="#007bff" 
+                       style="width: 100%; height: 50px; border: none; border-radius: 8px; cursor: pointer;">
+                <div id="color-value" style="text-align: center; margin-top: 5px; font-family: monospace;">#007bff</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let eventLoggingEnabled = true;
+        let validationRules = {};
+        let formData = {};
+
+        // Form validation rules
+        validationRules = {
+            username: {
+                required: true,
+                minLength: 3,
+                maxLength: 20,
+                pattern: /^[a-z0-9]+$/,
+                message: {
+                    required: 'ชื่อผู้ใช้เป็นข้อมูลบังคับ',
+                    minLength: 'ชื่อผู้ใช้ต้องมีอย่างน้อย 3 ตัวอักษร',
+                    maxLength: 'ชื่อผู้ใช้ต้องไม่เกิน 20 ตัวอักษร',
+                    pattern: 'ใช้ได้เฉพาะ a-z และ 0-9 เท่านั้น'
+                }
+            },
+            email: {
+                required: true,
+                pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: {
+                    required: 'อีเมลเป็นข้อมูลบังคับ',
+                    pattern: 'รูปแบบอีเมลไม่ถูกต้อง'
+                }
+            },
+            password: {
+                required: true,
+                minLength: 8,
+                strength: true,
+                message: {
+                    required: 'รหัสผ่านเป็นข้อมูลบังคับ',
+                    minLength: 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร',
+                    strength: 'รหัสผ่านต้องมีตัวอักษรพิมพ์ใหญ่ พิมพ์เล็ก และตัวเลข'
+                }
+            },
+            phone: {
+                required: false,
+                pattern: /^0[689][0-9]{8}$/,
+                message: {
+                    pattern: 'รูปแบบเบอร์โทรไม่ถูกต้อง (08X-XXX-XXXX)'
+                }
+            }
+        };
+
+        // Event logging function
+        function logFormEvent(eventType, target, details = '') {
+            if (!eventLoggingEnabled) return;
+            
+            const monitor = document.getElementById('event-monitor');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            
+            logEntry.innerHTML = `[${timestamp}] 📝 ${eventType} - ${target.name || target.id} ${details}`;
+            monitor.appendChild(logEntry);
+            monitor.scrollTop = monitor.scrollHeight;
+            
+            console.log(`Form Event: ${eventType}`, target, details);
+        }
+
+        // Validation functions
+        function validateField(fieldName, value) {
+            const rules = validationRules[fieldName];
+            if (!rules) return { valid: true, message: '' };
+            
+            // Required check
+            if (rules.required && (!value || value.trim() === '')) {
+                return { valid: false, message: rules.message.required };
+            }
+            
+            // Skip other checks if field is empty and not required
+            if (!rules.required && (!value || value.trim() === '')) {
+                return { valid: true, message: '' };
+            }
+            
+            // Length checks
+            if (rules.minLength && value.length < rules.minLength) {
+                return { valid: false, message: rules.message.minLength };
+            }
+            
+            if (rules.maxLength && value.length > rules.maxLength) {
+                return { valid: false, message: rules.message.maxLength };
+            }
+            
+            // Pattern check
+            if (rules.pattern && !rules.pattern.test(value)) {
+                return { valid: false, message: rules.message.pattern };
+            }
+            
+            // Special validation for password strength
+            if (rules.strength && fieldName === 'password') {
+                const hasUpper = /[A-Z]/.test(value);
+                const hasLower = /[a-z]/.test(value);
+                const hasNumber = /[0-9]/.test(value);
+                
+                if (!hasUpper || !hasLower || !hasNumber) {
+                    return { valid: false, message: rules.message.strength };
+                }
+            }
+            
+            return { valid: true, message: 'ถูกต้อง!' };
+        }
+
+        function updateFieldFeedback(fieldName, validation) {
+            const field = document.getElementById(fieldName);
+            const feedback = document.getElementById(fieldName + '-feedback');
+            
+            if (validation.valid) {
+                field.classList.add('valid');
+                field.classList.remove('invalid');
+                feedback.textContent = validation.message;
+                feedback.classList.add('valid');
+                feedback.classList.remove('invalid');
+            } else {
+                field.classList.add('invalid');
+                field.classList.remove('valid');
+                feedback.textContent = validation.message;
+                feedback.classList.add('invalid');
+                feedback.classList.remove('valid');
+            }
+        }
+
+        function calculatePasswordStrength(password) {
+            let score = 0;
+            
+            if (password.length >= 8) score += 25;
+            if (/[a-z]/.test(password)) score += 25;
+            if (/[A-Z]/.test(password)) score += 25;
+            if (/[0-9]/.test(password)) score += 25;
+            
+            return score;
+        }
+
+        // Form setup
+        function setupFormValidation() {
+            const form = document.getElementById('registration-form');
+            const submitBtn = document.getElementById('submit-btn');
+            
+            // Setup individual field listeners
+            Object.keys(validationRules).forEach(fieldName => {
+                const field = document.getElementById(fieldName);
+                if (!field) return;
+                
+                // Input event for real-time validation
+                field.addEventListener('input', function() {
+                    const validation = validateField(fieldName, this.value);
+                    updateFieldFeedback(fieldName, validation);
+                    
+                    // Special handling for password strength
+                    if (fieldName === 'password') {
+                        const strength = calculatePasswordStrength(this.value);
+                        document.getElementById('password-strength').style.width = strength + '%';
+                    }
+                    
+                    // Check confirm password
+                    if (fieldName === 'password') {
+                        const confirmField = document.getElementById('confirm-password');
+                        if (confirmField.value) {
+                            validateConfirmPassword();
+                        }
+                    }
+                    
+                    logFormEvent('INPUT', this, `value: "${this.value}"`);
+                    updateFormStatus();
+                });
+                
+                // Focus events
+                field.addEventListener('focus', function() {
+                    logFormEvent('FOCUS', this);
+                });
+                
+                field.addEventListener('blur', function() {
+                    const validation = validateField(fieldName, this.value);
+                    updateFieldFeedback(fieldName, validation);
+                    logFormEvent('BLUR', this, `validation: ${validation.valid ? 'PASS' : 'FAIL'}`);
+                });
+            });
+            
+            // Confirm password validation
+            document.getElementById('confirm-password').addEventListener('input', validateConfirmPassword);
+            
+            // Terms checkbox
+            document.getElementById('terms').addEventListener('change', function() {
+                const feedback = document.getElementById('terms-feedback');
+                if (this.checked) {
+                    feedback.textContent = 'ยอมรับข้อตกลงแล้ว';
+                    feedback.classList.add('valid');
+                    feedback.classList.remove('invalid');
+                } else {
+                    feedback.textContent = 'จำเป็นต้องยอมรับข้อตกลง';
+                    feedback.classList.add('invalid');
+                    feedback.classList.remove('valid');
+                }
+                logFormEvent('CHANGE', this, `checked: ${this.checked}`);
+                updateFormStatus();
+            });
+            
+            // Birthdate validation
+            document.getElementById('birthdate').addEventListener('input', function() {
+                const birthDate = new Date(this.value);
+                const today = new Date();
+                const age = today.getFullYear() - birthDate.getFullYear();
+                
+                const feedback = document.getElementById('birthdate-feedback');
+                if (age >= 13 && age <= 100) {
+                    feedback.textContent = `อายุ ${age} ปี`;
+                    feedback.classList.add('valid');
+                    feedback.classList.remove('invalid');
+                    this.classList.add('valid');
+                    this.classList.remove('invalid');
+                } else {
+                    feedback.textContent = 'อายุต้องอยู่ระหว่าง 13-100 ปี';
+                    feedback.classList.add('invalid');
+                    feedback.classList.remove('valid');
+                    this.classList.add('invalid');
+                    this.classList.remove('valid');
+                }
+                
+                logFormEvent('DATE_CHANGE', this, `age: ${age}`);
+            });
+            
+            // Form submit
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                logFormEvent('SUBMIT', this, 'form submission prevented');
+                
+                if (validateForm()) {
+                    simulateFormSubmission();
+                } else {
+                    alert('⚠️ กรุณาตรวจสอบข้อมูลที่กรอกให้ถูกต้อง');
+                }
+            });
+        }
+
+        function validateConfirmPassword() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const feedback = document.getElementById('confirm-password-feedback');
+            const field = document.getElementById('confirm-password');
+            
+            if (confirmPassword === '') {
+                feedback.textContent = '';
+                field.classList.remove('valid', 'invalid');
+            } else if (password === confirmPassword) {
+                feedback.textContent = 'รหัสผ่านตรงกัน';
+                feedback.classList.add('valid');
+                feedback.classList.remove('invalid');
+                field.classList.add('valid');
+                field.classList.remove('invalid');
+            } else {
+                feedback.textContent = 'รหัสผ่านไม่ตรงกัน';
+                feedback.classList.add('invalid');
+                feedback.classList.remove('valid');
+                field.classList.add('invalid');
+                field.classList.remove('valid');
+            }
+            
+            logFormEvent('CONFIRM_PASSWORD', field, `match: ${password === confirmPassword}`);
+        }
+
+        function validateForm() {
+            let isValid = true;
+            
+            // Validate all fields
+            Object.keys(validationRules).forEach(fieldName => {
+                const field = document.getElementById(fieldName);
+                if (field) {
+                    const validation = validateField(fieldName, field.value);
+                    updateFieldFeedback(fieldName, validation);
+                    if (!validation.valid) isValid = false;
+                }
+            });
+            
+            // Check confirm password
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            if (password !== confirmPassword) isValid = false;
+            
+            // Check terms
+            const terms = document.getElementById('terms').checked;
+            if (!terms) isValid = false;
+            
+            // Check birthdate
+            const birthdate = document.getElementById('birthdate').value;
+            if (birthdate) {
+                const age = new Date().getFullYear() - new Date(birthdate).getFullYear();
+                if (age < 13 || age > 100) isValid = false;
+            }
+            
+            return isValid;
+        }
+
+        function updateFormStatus() {
+            const isValid = validateForm();
+            const submitBtn = document.getElementById('submit-btn');
+            const statusText = document.getElementById('status-text');
+            const formStatus = document.getElementById('form-status');
+            
+            if (isValid) {
+                submitBtn.disabled = false;
+                statusText.textContent = 'พร้อมส่งข้อมูล ✅';
+                formStatus.style.background = '#d4edda';
+                formStatus.style.color = '#155724';
+            } else {
+                submitBtn.disabled = true;
+                statusText.textContent = 'ข้อมูลยังไม่ครบถ้วนหรือไม่ถูกต้อง ⚠️';
+                formStatus.style.background = '#f8d7da';
+                formStatus.style.color = '#721c24';
+            }
+        }
+
+        function simulateFormSubmission() {
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.textContent = 'กำลังส่งข้อมูล...';
+            submitBtn.disabled = true;
+            
+            logFormEvent('SUBMIT_START', document.getElementById('registration-form'));
+            
+            setTimeout(() => {
+                alert('✅ สมัครสมาชิกสำเร็จ!\n\nข้อมูลถูกส่งไปยังเซิร์ฟเวอร์แล้ว (จำลอง)');
+                submitBtn.textContent = 'สมัครสมาชิก';
+                logFormEvent('SUBMIT_SUCCESS', document.getElementById('registration-form'));
+                resetForm();
+            }, 2000);
+        }
+
+        function resetForm() {
+            document.getElementById('registration-form').reset();
+            
+            // Clear all validation states
+            document.querySelectorAll('.form-control').forEach(field => {
+                field.classList.remove('valid', 'invalid');
+            });
+            
+            document.querySelectorAll('.feedback').forEach(feedback => {
+                feedback.textContent = '';
+                feedback.classList.remove('valid', 'invalid');
+            });
+            
+            // Reset password strength
+            document.getElementById('password-strength').style.width = '0%';
+            
+            // Reset form status
+            updateFormStatus();
+            
+            logFormEvent('RESET', document.getElementById('registration-form'));
+        }
+
+        // Advanced form features
+        function setupAdvancedFeatures() {
+            // File upload
+            document.getElementById('file-upload').addEventListener('change', function(event) {
+                const files = Array.from(this.files);
+                const feedback = document.getElementById('file-feedback');
+                const fileList = document.getElementById('file-list');
+                
+                if (files.length === 0) {
+                    feedback.textContent = '';
+                    fileList.innerHTML = '';
+                    return;
+                }
+                
+                // Validate file types and sizes
+                let validFiles = [];
+                let errors = [];
+                
+                files.forEach(file => {
+                    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                        errors.push(`${file.name}: ไฟล์ใหญ่เกิน 5MB`);
+                    } else if (!['image/jpeg', 'image/png', 'application/pdf'].includes(file.type)) {
+                        errors.push(`${file.name}: ประเภทไฟล์ไม่รองรับ`);
+                    } else {
+                        validFiles.push(file);
+                    }
+                });
+                
+                if (errors.length > 0) {
+                    feedback.textContent = errors.join(', ');
+                    feedback.classList.add('invalid');
+                    feedback.classList.remove('valid');
+                } else {
+                    feedback.textContent = `อัพโหลด ${validFiles.length} ไฟล์สำเร็จ`;
+                    feedback.classList.add('valid');
+                    feedback.classList.remove('invalid');
+                }
+                
+                // Display file list
+                fileList.innerHTML = validFiles.map(file => 
+                    `<div style="font-size: 12px; color: #666; margin: 2px 0;">
+                        📎 ${file.name} (${(file.size / 1024).toFixed(1)} KB)
+                    </div>`
+                ).join('');
+                
+                logFormEvent('FILE_UPLOAD', this, `files: ${files.length}, valid: ${validFiles.length}`);
+            });
+            
+            // Range input
+            document.getElementById('skill-level').addEventListener('input', function() {
+                document.getElementById('skill-value').textContent = this.value;
+                logFormEvent('RANGE_CHANGE', this, `value: ${this.value}`);
+            });
+            
+            // Color picker
+            document.getElementById('favorite-color').addEventListener('input', function() {
+                document.getElementById('color-value').textContent = this.value;
+                document.getElementById('color-value').style.color = this.value;
+                logFormEvent('COLOR_CHANGE', this, `color: ${this.value}`);
+            });
+        }
+
+        // Event monitor functions
+        function clearEventMonitor() {
+            const monitor = document.getElementById('event-monitor');
+            monitor.innerHTML = '<div>🔥 Form Event Monitor - Events จะแสดงที่นี่</div>';
+        }
+
+        function toggleEventLogging() {
+            eventLoggingEnabled = !eventLoggingEnabled;
+            const status = eventLoggingEnabled ? 'เปิด' : 'ปิด';
+            logFormEvent('LOGGING', { name: 'system' }, `logging ${status}`);
+        }
+
+        function exportFormData() {
+            const form = document.getElementById('registration-form');
+            const formData = new FormData(form);
+            const data = {};
+            
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+            
+            // Add additional data
+            data.skillLevel = document.getElementById('skill-level').value;
+            data.favoriteColor = document.getElementById('favorite-color').value;
+            data.exportTime = new Date().toISOString();
+            
+            const jsonData = JSON.stringify(data, null, 2);
+            
+            // Create and download file
+            const blob = new Blob([jsonData], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'form-data.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            logFormEvent('EXPORT', form, `data exported: ${Object.keys(data).length} fields`);
+        }
+
+        // Initialize all form events
+        function initializeFormEvents() {
+            setupFormValidation();
+            setupAdvancedFeatures();
+            updateFormStatus();
+            
+            console.log('=== Form Events LAB 3 เริ่มต้น ===');
+            logFormEvent('INIT', { name: 'system' }, 'Form validation system ready');
+        }
+
+        // Start when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeFormEvents();
+        });
+    </script>
+</body>
+</html>

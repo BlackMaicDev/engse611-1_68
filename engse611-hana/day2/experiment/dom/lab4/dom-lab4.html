@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAB 4: สร้างและลบ Elements</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .demo-section { background: #f8f9fa; padding: 20px; margin: 15px 0; border-radius: 8px; }
+        .demo-btn { background: #28a745; color: white; padding: 8px 15px; 
+                   border: none; border-radius: 4px; margin: 3px; cursor: pointer; }
+        .demo-btn:hover { background: #218838; }
+        .demo-btn.danger { background: #dc3545; }
+        .demo-btn.danger:hover { background: #c82333; }
+        .element-container { background: white; border: 2px dashed #adb5bd; 
+                           padding: 20px; margin: 10px 0; border-radius: 8px; min-height: 100px; }
+        .created-element { background: #e7f3ff; border: 1px solid #4dabf7; 
+                          padding: 10px; margin: 5px; border-radius: 5px; }
+        .todo-item { background: white; border: 1px solid #dee2e6; padding: 10px; 
+                    margin: 5px 0; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
+        .todo-item.completed { background: #d4edda; text-decoration: line-through; opacity: 0.7; }
+    </style>
+</head>
+<body>
+    <h1>🎯 LAB 4: สร้างและลบ Elements</h1>
+
+    <!-- Section 1: Basic createElement -->
+    <div class="demo-section">
+        <h3>🏗️ การสร้าง Elements พื้นฐาน</h3>
+        <div class="control-panel">
+            <button class="demo-btn" onclick="createParagraph()">สร้าง Paragraph</button>
+            <button class="demo-btn" onclick="createButton()">สร้าง Button</button>
+            <button class="demo-btn" onclick="createImage()">สร้าง Image</button>
+            <button class="demo-btn" onclick="createList()">สร้าง List</button>
+            <button class="demo-btn danger" onclick="clearContainer('basic-container')">ล้างทั้งหมด</button>
+        </div>
+        
+        <div id="basic-container" class="element-container">
+            <p style="text-align: center; color: #6c757d;">Elements ที่สร้างจะแสดงที่นี่</p>
+        </div>
+    </div>
+
+    <!-- Section 2: Dynamic Form Creation -->
+    <div class="demo-section">
+        <h3>📝 สร้างฟอร์มแบบ Dynamic</h3>
+        <div class="control-panel">
+            <select id="form-element-type">
+                <option value="text">Text Input</option>
+                <option value="email">Email Input</option>
+                <option value="password">Password Input</option>
+                <option value="textarea">Textarea</option>
+                <option value="select">Select Dropdown</option>
+                <option value="checkbox">Checkbox</option>
+                <option value="radio">Radio Button</option>
+            </select>
+            <input type="text" id="element-label" placeholder="Label" value="ชื่อฟิลด์">
+            <button class="demo-btn" onclick="addFormElement()">เพิ่มฟิลด์</button>
+            <button class="demo-btn danger" onclick="clearContainer('form-container')">ล้างฟอร์ม</button>
+            <button class="demo-btn" onclick="validateForm()">ตรวจสอบฟอร์ม</button>
+        </div>
+        
+        <div id="form-container" class="element-container">
+            <p style="text-align: center; color: #6c757d;">ฟอร์มจะถูกสร้างที่นี่</p>
+        </div>
+        
+        <div id="form-result" style="margin-top: 10px; padding: 10px; background: white; border-radius: 5px;"></div>
+    </div>
+
+    <!-- Section 3: Todo List Application -->
+    <div class="demo-section">
+        <h3>✅ Todo List Application</h3>
+        <div class="control-panel">
+            <input type="text" id="todo-input" placeholder="เพิ่มงานใหม่..." style="padding: 8px; margin: 5px; flex: 1; border: 1px solid #ddd; border-radius: 4px;">
+            <button class="demo-btn" onclick="addTodo()">เพิ่มงาน</button>
+            <button class="demo-btn" onclick="addRandomTodos()">เพิ่มงานตัวอย่าง</button>
+            <button class="demo-btn danger" onclick="clearCompletedTodos()">ลบงานเสร็จแล้ว</button>
+            <button class="demo-btn danger" onclick="clearAllTodos()">ลบทั้งหมด</button>
+        </div>
+        
+        <div id="todo-stats" style="background: white; padding: 10px; border-radius: 5px; margin: 10px 0;"></div>
+        <div id="todo-container" class="element-container"></div>
+    </div>
+
+    <script>
+        let elementCounter = 1;
+        let todoCounter = 1;
+
+        // LAB 4.1: Basic createElement
+        function createParagraph() {
+            // สร้าง element ใหม่
+            let p = document.createElement('p');
+            p.textContent = `Paragraph ที่ ${elementCounter++} - สร้างเมื่อ ${new Date().toLocaleTimeString('th-TH')}`;
+            p.className = 'created-element';
+            
+            // เพิ่มการ์ลงใน container
+            document.getElementById('basic-container').appendChild(p);
+            
+            console.log('สร้าง paragraph:', p);
+        }
+
+        function createButton() {
+            let button = document.createElement('button');
+            button.textContent = `Button ${elementCounter++}`;
+            button.className = 'demo-btn';
+            
+            // เพิ่ม event listener
+            button.addEventListener('click', function() {
+                alert(`คุณคลิก ${this.textContent}!`);
+            });
+            
+            document.getElementById('basic-container').appendChild(button);
+            
+            console.log('สร้าง button:', button);
+        }
+
+        function createImage() {
+            let img = document.createElement('img');
+            let colors = ['ff6b6b', '4ecdc4', '45b7d1', '96ceb4', 'ffeaa7'];
+            let randomColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            img.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='100'%3E%3Crect width='150' height='100' fill='%23${randomColor}'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='0.3em' fill='white'%3EImage ${elementCounter}%3C/text%3E%3C/svg%3E`;
+            img.alt = `รูปภาพที่ ${elementCounter++}`;
+            img.style.display = 'block';
+            img.style.margin = '10px auto';
+            img.style.borderRadius = '8px';
+            
+            document.getElementById('basic-container').appendChild(img);
+            
+            console.log('สร้าง image:', img);
+        }
+
+        function createList() {
+            let ul = document.createElement('ul');
+            ul.className = 'created-element';
+            
+            let items = ['รายการที่ 1', 'รายการที่ 2', 'รายการที่ 3'];
+            
+            items.forEach(itemText => {
+                let li = document.createElement('li');
+                li.textContent = itemText;
+                ul.appendChild(li);
+            });
+            
+            document.getElementById('basic-container').appendChild(ul);
+            
+            console.log('สร้าง list:', ul);
+        }
+
+        function clearContainer(containerId) {
+            let container = document.getElementById(containerId);
+            container.innerHTML = '<p style="text-align: center; color: #6c757d;">Elements ที่สร้างจะแสดงที่นี่</p>';
+            
+            if (containerId === 'todo-container') {
+                updateTodoStats();
+            }
+            
+            console.log('ล้าง container:', containerId);
+        }
+
+        // LAB 4.2: Dynamic Form Creation
+        function addFormElement() {
+            let type = document.getElementById('form-element-type').value;
+            let labelText = document.getElementById('element-label').value || 'ฟิลด์';
+            let container = document.getElementById('form-container');
+            
+            // ลบข้อความเริ่มต้น
+            if (container.children.length === 1 && container.children[0].tagName === 'P') {
+                container.innerHTML = '';
+            }
+            
+            // สร้าง wrapper div
+            let wrapper = document.createElement('div');
+            wrapper.style.margin = '10px 0';
+            wrapper.style.padding = '10px';
+            wrapper.style.background = 'white';
+            wrapper.style.borderRadius = '5px';
+            wrapper.style.border = '1px solid #dee2e6';
+            
+            // สร้าง label
+            let label = document.createElement('label');
+            label.textContent = labelText + ':';
+            label.style.display = 'block';
+            label.style.marginBottom = '5px';
+            label.style.fontWeight = 'bold';
+            
+            // สร้าง input element ตามประเภท
+            let element;
+            
+            switch (type) {
+                case 'textarea':
+                    element = document.createElement('textarea');
+                    element.placeholder = `ใส่${labelText}`;
+                    element.rows = 3;
+                    break;
+                case 'select':
+                    element = document.createElement('select');
+                    ['เลือกตัวเลือก', 'ตัวเลือก 1', 'ตัวเลือก 2', 'ตัวเลือก 3'].forEach(optionText => {
+                        let option = document.createElement('option');
+                        option.textContent = optionText;
+                        option.value = optionText;
+                        element.appendChild(option);
+                    });
+                    break;
+                case 'checkbox':
+                    element = document.createElement('input');
+                    element.type = 'checkbox';
+                    element.style.marginRight = '8px';
+                    let checkboxLabel = document.createElement('span');
+                    checkboxLabel.textContent = labelText;
+                    wrapper.appendChild(element);
+                    wrapper.appendChild(checkboxLabel);
+                    break;
+                case 'radio':
+                    element = document.createElement('input');
+                    element.type = 'radio';
+                    element.name = 'radio-group';
+                    element.style.marginRight = '8px';
+                    let radioLabel = document.createElement('span');
+                    radioLabel.textContent = labelText;
+                    wrapper.appendChild(element);
+                    wrapper.appendChild(radioLabel);
+                    break;
+                default:
+                    element = document.createElement('input');
+                    element.type = type;
+                    element.placeholder = `ใส่${labelText}`;
+            }
+            
+            // กำหนด style ทั่วไป
+            if (element && type !== 'checkbox' && type !== 'radio') {
+                element.style.width = '100%';
+                element.style.padding = '8px';
+                element.style.border = '1px solid #ddd';
+                element.style.borderRadius = '4px';
+                element.name = labelText.toLowerCase().replace(/\s+/g, '-');
+            }
+            
+            // สร้างปุ่มลบ
+            let deleteBtn = document.createElement('button');
+            deleteBtn.textContent = 'ลบ';
+            deleteBtn.className = 'demo-btn danger';
+            deleteBtn.style.marginTop = '10px';
+            deleteBtn.addEventListener('click', function() {
+                wrapper.remove();
+            });
+            
+            // ประกอบ elements
+            if (type !== 'checkbox' && type !== 'radio') {
+                wrapper.appendChild(label);
+                wrapper.appendChild(element);
+            }
+            wrapper.appendChild(deleteBtn);
+            
+            container.appendChild(wrapper);
+            
+            console.log('เพิ่มฟิลด์:', type, labelText);
+        }
+
+        function validateForm() {
+            let container = document.getElementById('form-container');
+            let result = document.getElementById('form-result');
+            let inputs = container.querySelectorAll('input, textarea, select');
+            
+            let formData = {};
+            let valid = true;
+            
+            inputs.forEach(input => {
+                if (input.type === 'checkbox') {
+                    formData[input.name || 'checkbox'] = input.checked;
+                } else if (input.type === 'radio') {
+                    if (input.checked) {
+                        formData[input.name] = input.value;
+                    }
+                } else {
+                    formData[input.name] = input.value;
+                    if (!input.value && input.type !== 'checkbox' && input.type !== 'radio') {
+                        valid = false;
+                    }
+                }
+            });
+            
+            result.innerHTML = `
+                <h4>ผลการตรวจสอบฟอร์ม:</h4>
+                <p><strong>สถานะ:</strong> ${valid ? '✅ ข้อมูลครบถ้วน' : '❌ ข้อมูลไม่ครบ'}</p>
+                <p><strong>จำนวนฟิลด์:</strong> ${inputs.length}</p>
+                <pre>${JSON.stringify(formData, null, 2)}</pre>
+            `;
+            
+            console.log('Form validation:', formData);
+        }
+
+        // LAB 4.3: Todo List Application
+        function addTodo() {
+            let input = document.getElementById('todo-input');
+            let todoText = input.value.trim();
+            
+            if (!todoText) {
+                alert('กรุณาใส่งานที่ต้องทำ');
+                return;
+            }
+            
+            createTodoElement(todoText);
+            input.value = '';
+            updateTodoStats();
+        }
+
+        function createTodoElement(todoText) {
+            let container = document.getElementById('todo-container');
+            
+            // ลบข้อความเริ่มต้น
+            if (container.children.length === 0) {
+                container.innerHTML = '';
+            }
+            
+            // สร้าง todo item
+            let todoItem = document.createElement('div');
+            todoItem.className = 'todo-item';
+            todoItem.id = `todo-${todoCounter++}`;
+            
+            // ข้อความงาน
+            let todoSpan = document.createElement('span');
+            todoSpan.textContent = todoText;
+            
+            // ปุ่มควบคุม
+            let buttonContainer = document.createElement('div');
+            
+            // ปุ่มเสร็จ/ยกเลิก
+            let completeBtn = document.createElement('button');
+            completeBtn.textContent = '✓ เสร็จ';
+            completeBtn.className = 'demo-btn';
+            completeBtn.style.background = '#28a745';
+            completeBtn.style.marginRight = '5px';
+            
+            completeBtn.addEventListener('click', function() {
+                todoItem.classList.toggle('completed');
+                completeBtn.textContent = todoItem.classList.contains('completed') ? '↺ ยกเลิก' : '✓ เสร็จ';
+                updateTodoStats();
+            });
+            
+            // ปุ่มลบ
+            let deleteBtn = document.createElement('button');
+            deleteBtn.textContent = '🗑️ ลบ';
+            deleteBtn.className = 'demo-btn danger';
+            
+            deleteBtn.addEventListener('click', function() {
+                todoItem.remove();
+                updateTodoStats();
+            });
+            
+            buttonContainer.appendChild(completeBtn);
+            buttonContainer.appendChild(deleteBtn);
+            
+            todoItem.appendChild(todoSpan);
+            todoItem.appendChild(buttonContainer);
+            
+            container.appendChild(todoItem);
+            
+            console.log('เพิ่ม todo:', todoText);
+        }
+
+        function addRandomTodos() {
+            let sampleTodos = [
+                'ทำการบ้าน JavaScript',
+                'อ่านหนังสือ Web Development',
+                'ฝึกเขียน DOM Manipulation',
+                'ทบทวนบทเรียน HTML & CSS',
+                'สร้างโปรเจคส่วนตัว',
+                'เรียนรู้ React.js',
+                'ฝึกใช้ Git และ GitHub'
+            ];
+            
+            // เพิ่ม 3 งานแบบสุ่ม
+            for (let i = 0; i < 3; i++) {
+                let randomTodo = sampleTodos[Math.floor(Math.random() * sampleTodos.length)];
+                createTodoElement(randomTodo);
+            }
+            
+            updateTodoStats();
+        }
+
+        function clearCompletedTodos() {
+            let completedTodos = document.querySelectorAll('.todo-item.completed');
+            completedTodos.forEach(todo => todo.remove());
+            updateTodoStats();
+            
+            console.log('ลบงานที่เสร็จแล้ว:', completedTodos.length, 'รายการ');
+        }
+
+        function clearAllTodos() {
+            if (confirm('คุณแน่ใจหรือไม่ที่จะลบงานทั้งหมด?')) {
+                document.getElementById('todo-container').innerHTML = '';
+                updateTodoStats();
+                console.log('ลบงานทั้งหมดแล้ว');
+            }
+        }
+
+        function updateTodoStats() {
+            let allTodos = document.querySelectorAll('.todo-item');
+            let completedTodos = document.querySelectorAll('.todo-item.completed');
+            let pendingTodos = allTodos.length - completedTodos.length;
+            
+            let statsDiv = document.getElementById('todo-stats');
+            statsDiv.innerHTML = `
+                <strong>📊 สถิติงาน:</strong> 
+                ทั้งหมด ${allTodos.length} งาน | 
+                เสร็จแล้ว ${completedTodos.length} งาน | 
+                คงเหลือ ${pendingTodos} งาน
+                ${allTodos.length > 0 ? `(${Math.round(completedTodos.length / allTodos.length * 100)}% เสร็จสิ้น)` : ''}
+            `;
+        }
+
+        // เริ่มต้น
+        console.log('=== DOM LAB 4 เริ่มต้น ===');
+        console.log('🏗️ ทดลองสร้างและลบ Elements');
+        
+        updateTodoStats();
+        
+        // Event listener สำหรับ Enter key ใน todo input
+        document.getElementById('todo-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addTodo();
+            }
+        });
+    </script>
+</body>
+</html>

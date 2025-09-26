@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAB 3: Profile App</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f2f5; }
+        .container { max-width: 500px; margin: 0 auto; }
+        .card { background: white; padding: 25px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 5px; }
+        input.valid { border-color: green; }
+        input.invalid { border-color: red; }
+        .btn { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        .btn-success { background: #28a745; }
+        .btn-danger { background: #dc3545; }
+        .profile-display { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 15px; }
+        .error { color: red; font-size: 14px; }
+        .success { color: green; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ฟอร์มกรอกข้อมูล -->
+        <div class="card">
+            <h2>👤 ข้อมูลโปรไฟล์</h2>
+            
+            <div class="form-group">
+                <label for="fullname">ชื่อ-นามสกุล:</label>
+                <input type="text" id="fullname" placeholder="ชื่อ นามสกุล">
+                <div id="fullname-msg"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="age">อายุ:</label>
+                <input type="number" id="age" placeholder="15-100 ปี" min="15" max="100">
+                <div id="age-msg"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="hobby">งานอดิเรก:</label>
+                <select id="hobby">
+                    <option value="">เลือกงานอดิเรก</option>
+                    <option value="อ่านหนังสือ">อ่านหนังสือ</option>
+                    <option value="ฟังเพลง">ฟังเพลง</option>
+                    <option value="เล่นเกม">เล่นเกม</option>
+                    <option value="ออกกำลังกาย">ออกกำลังกาย</option>
+                    <option value="ถ่ายรูป">ถ่ายรูป</option>
+                </select>
+            </div>
+
+            <button class="btn btn-success" onclick="saveProfile()">💾 บันทึกโปรไฟล์</button>
+            <button class="btn btn-danger" onclick="clearProfile()">🗑️ ลบข้อมูล</button>
+        </div>
+
+        <!-- แสดงข้อมูลที่บันทึก -->
+        <div class="card">
+            <h3>📋 ข้อมูลที่บันทึกไว้</h3>
+            <div id="profileDisplay">
+                <p style="color: #666;">ยังไม่มีข้อมูลโปรไฟล์</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ตรวจสอบชื่อ-นามสกุล
+        function validateName(name) {
+            if (name.trim().length < 2) {
+                return { valid: false, message: "ชื่อต้องมีอย่างน้อย 2 ตัวอักษร" };
+            }
+            if (name.trim().split(' ').length < 2) {
+                return { valid: false, message: "กรุณาใส่ชื่อและนามสกุล" };
+            }
+            return { valid: true, message: "✓ ชื่อถูกต้อง" };
+        }
+
+        // ตรวจสอบอายุ
+        function validateAge(age) {
+            const ageNum = parseInt(age);
+            if (isNaN(ageNum) || ageNum < 15 || ageNum > 100) {
+                return { valid: false, message: "อายุต้องอยู่ระหว่าง 15-100 ปี" };
+            }
+            return { valid: true, message: "✓ อายุถูกต้อง" };
+        }
+
+        // แสดงผลการตรวจสอบ
+        function showValidation(fieldId, result) {
+            const field = document.getElementById(fieldId);
+            const messageDiv = document.getElementById(fieldId + '-msg');
+            
+            if (result.valid) {
+                field.className = 'valid';
+                messageDiv.className = 'success';
+            } else {
+                field.className = 'invalid';
+                messageDiv.className = 'error';
+            }
+            messageDiv.textContent = result.message;
+        }
+
+        // บันทึกโปรไฟล์
+        function saveProfile() {
+            const fullname = document.getElementById('fullname').value;
+            const age = document.getElementById('age').value;
+            const hobby = document.getElementById('hobby').value;
+
+            // ตรวจสอบข้อมูล
+            const nameValid = validateName(fullname);
+            const ageValid = validateAge(age);
+            
+            showValidation('fullname', nameValid);
+            showValidation('age', ageValid);
+
+            if (!nameValid.valid || !ageValid.valid || !hobby) {
+                alert('❌ กรุณากรอกข้อมูลให้ถูกต้องและครบถ้วน');
+                return;
+            }
+
+            // สร้างข้อมูลโปรไฟล์
+            const profile = {
+                fullname: fullname.trim(),
+                age: parseInt(age),
+                hobby: hobby,
+                savedDate: new Date().toLocaleDateString('th-TH')
+            };
+
+            // บันทึกลง Local Storage
+            localStorage.setItem('userProfile', JSON.stringify(profile));
+            
+            alert('✅ บันทึกโปรไฟล์สำเร็จ!');
+            displayProfile();
+        }
+
+        // แสดงข้อมูลโปรไฟล์
+        function displayProfile() {
+            const saved = localStorage.getItem('userProfile');
+            const display = document.getElementById('profileDisplay');
+            
+            if (saved) {
+                const profile = JSON.parse(saved);
+                display.innerHTML = `
+                    <div class="profile-display">
+                        <h4>👤 ${profile.fullname}</h4>
+                        <p><strong>อายุ:</strong> ${profile.age} ปี</p>
+                        <p><strong>งานอดิเรก:</strong> ${profile.hobby}</p>
+                        <p><strong>บันทึกเมื่อ:</strong> ${profile.savedDate}</p>
+                    </div>
+                `;
+            } else {
+                display.innerHTML = '<p style="color: #666;">ยังไม่มีข้อมูลโปรไฟล์</p>';
+            }
+        }
+
+        // ลบข้อมูลโปรไฟล์
+        function clearProfile() {
+            if (confirm('ลบข้อมูลโปรไฟล์?')) {
+                localStorage.removeItem('userProfile');
+                
+                // ล้างฟอร์ม
+                document.getElementById('fullname').value = '';
+                document.getElementById('age').value = '';
+                document.getElementById('hobby').value = '';
+                
+                // ล้างการตรวจสอบ
+                document.querySelectorAll('input').forEach(input => {
+                    input.className = '';
+                });
+                document.querySelectorAll('[id$="-msg"]').forEach(msg => {
+                    msg.textContent = '';
+                    msg.className = '';
+                });
+                
+                displayProfile();
+                alert('🗑️ ลบข้อมูลเรียบร้อย');
+            }
+        }
+
+        // เริ่มต้นแอป
+        document.addEventListener('DOMContentLoaded', function() {
+            displayProfile(); // โหลดข้อมูลที่มีอยู่
+            
+            // ตรวจสอบขณะพิมพ์
+            document.getElementById('fullname').addEventListener('input', function() {
+                showValidation('fullname', validateName(this.value));
+            });
+            
+            document.getElementById('age').addEventListener('input', function() {
+                showValidation('age', validateAge(this.value));
+            });
+        });
+    </script>
+</body>
+</html>

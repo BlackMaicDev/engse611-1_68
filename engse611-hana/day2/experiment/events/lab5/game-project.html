@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Card Game - Event Handling Final Project</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .game-container { max-width: 1000px; margin: 0 auto; }
+        .header { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+        .game-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: white; padding: 15px; border-radius: 10px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .stat-number { font-size: 2em; font-weight: bold; color: #667eea; }
+        .game-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 20px 0; padding: 20px; background: white; border-radius: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+        .card { aspect-ratio: 1; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 2em; color: white; cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .card:hover { transform: scale(1.05); }
+        .card.flipped { background: white; color: #333; border: 3px solid #667eea; }
+        .card.matched { background: #4CAF50; animation: bounce 0.6s ease; }
+        .card.wrong { background: #f44336; animation: shake 0.6s ease; }
+        .controls { background: white; padding: 20px; border-radius: 15px; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+        .game-btn { background: #667eea; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; margin: 5px; font-size: 16px; }
+        .game-btn:hover { background: #5a67d8; transform: translateY(-2px); }
+        .game-btn:disabled { background: #a0aec0; cursor: not-allowed; transform: none; }
+        .difficulty-select { padding: 8px; border: 1px solid #ddd; border-radius: 6px; margin: 0 10px; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; }
+        .modal-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 15px; text-align: center; min-width: 300px; }
+        .event-indicator { position: fixed; top: 20px; right: 20px; background: #333; color: #00ff00; padding: 10px; border-radius: 8px; font-family: monospace; font-size: 12px; max-width: 200px; opacity: 0.8; }
+        @keyframes bounce { 0%, 20%, 60%, 100% { transform: translateY(0); } 40% { transform: translateY(-20px); } 80% { transform: translateY(-10px); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); } 20%, 40%, 60%, 80% { transform: translateX(5px); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        .pulse { animation: pulse 2s infinite; }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🧠 Memory Card Game</h1>
+            <p>Event Handling Final Project - จับคู่การ์ดให้ครบทุกคู่!</p>
+        </div>
+
+        <!-- Game Stats -->
+        <div class="game-stats">
+            <div class="stat-card">
+                <div class="stat-number" id="moves-count">0</div>
+                <div>Moves</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="matches-count">0</div>
+                <div>Matches</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="timer">00:00</div>
+                <div>Time</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="score">0</div>
+                <div>Score</div>
+            </div>
+        </div>
+
+        <!-- Game Board -->
+        <div id="game-board" class="game-board">
+            <!-- Cards will be generated here -->
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <select id="difficulty" class="difficulty-select">
+                <option value="easy">ง่าย (4x4)</option>
+                <option value="medium">ปานกลาง (4x6)</option>
+                <option value="hard">ยาก (6x6)</option>
+            </select>
+            
+            <button id="new-game-btn" class="game-btn">🎮 เกมใหม่</button>
+            <button id="pause-btn" class="game-btn">⏸️ พัก</button>
+            <button id="hint-btn" class="game-btn">💡 คำใบ้</button>
+            <button id="reset-btn" class="game-btn" style="background: #f44336;">🔄 รีเซ็ต</button>
+            
+            <div style="margin-top: 15px;">
+                <button id="mute-btn" class="game-btn" style="background: #ff9800;">🔊 เสียง</button>
+                <button id="fullscreen-btn" class="game-btn" style="background: #9c27b0;">📺 เต็มจอ</button>
+                <button id="leaderboard-btn" class="game-btn" style="background: #4caf50;">🏆 คะแนน</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Indicator -->
+    <div id="event-indicator" class="event-indicator">
+        Event Monitor: Ready
+    </div>
+
+    <!-- Game Over Modal -->
+    <div id="game-over-modal" class="modal">
+        <div class="modal-content">
+            <h2>🎉 ยินดีด้วย!</h2>
+            <div id="final-stats"></div>
+            <div style="margin-top: 20px;">
+                <button class="game-btn" onclick="closeModal()">ปิด</button>
+                <button class="game-btn" onclick="startNewGame()">เล่นอีกครั้ง</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pause Modal -->
+    <div id="pause-modal" class="modal">
+        <div class="modal-content">
+            <h2>⏸️ เกมหยุดชั่วคราว</h2>
+            <p>กดปุ่มเพื่อดำเนินการต่อ</p>
+            <button class="game-btn" onclick="resumeGame()">▶️ เล่นต่อ</button>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        class MemoryGame {
+            constructor() {
+                this.cards = [];
+                this.flippedCards = [];
+                this.matches = 0;
+                this.moves = 0;
+                this.score = 0;
+                this.timer = 0;
+                this.timerInterval = null;
+                this.gameStarted = false;
+                this.gamePaused = false;
+                this.gameOver = false;
+                this.difficulty = 'easy';
+                this.soundEnabled = true;
+                this.hintsUsed = 0;
+                
+                this.cardSymbols = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🐦'];
+                
+                this.init();
+            }
+            
+            init() {
+                this.setupEventListeners();
+                this.setupKeyboardControls();
+                this.createBoard();
+                this.updateDisplay();
+                this.logEvent('GAME_INIT', 'Memory Game initialized');
+            }
+            
+            setupEventListeners() {
+                // Game board events (Event Delegation)
+                document.getElementById('game-board').addEventListener('click', (e) => {
+                    if (e.target.classList.contains('card') && !this.gamePaused) {
+                        this.handleCardClick(e.target);
+                    }
+                });
+                
+                // Control buttons
+                document.getElementById('new-game-btn').addEventListener('click', () => this.startNewGame());
+                document.getElementById('pause-btn').addEventListener('click', () => this.togglePause());
+                document.getElementById('hint-btn').addEventListener('click', () => this.showHint());
+                document.getElementById('reset-btn').addEventListener('click', () => this.resetGame());
+                document.getElementById('mute-btn').addEventListener('click', () => this.toggleSound());
+                document.getElementById('fullscreen-btn').addEventListener('click', () => this.toggleFullscreen());
+                document.getElementById('leaderboard-btn').addEventListener('click', () => this.showLeaderboard());
+                
+                // Difficulty change
+                document.getElementById('difficulty').addEventListener('change', (e) => {
+                    this.difficulty = e.target.value;
+                    this.createBoard();
+                    this.logEvent('DIFFICULTY_CHANGE', this.difficulty);
+                });
+                
+                // Modal events
+                document.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('modal')) {
+                        this.closeModal();
+                    }
+                });
+                
+                // Window events
+                window.addEventListener('beforeunload', () => {
+                    this.saveGameState();
+                });
+                
+                window.addEventListener('blur', () => {
+                    if (this.gameStarted && !this.gamePaused) {
+                        this.pauseGame();
+                    }
+                });
+                
+                // Visibility change (for tab switching)
+                document.addEventListener('visibilitychange', () => {
+                    if (document.hidden && this.gameStarted && !this.gamePaused) {
+                        this.pauseGame();
+                    }
+                });
+            }
+            
+            setupKeyboardControls() {
+                document.addEventListener('keydown', (e) => {
+                    if (this.gamePaused) return;
+                    
+                    switch (e.key) {
+                        case ' ':
+                        case 'Escape':
+                            e.preventDefault();
+                            this.togglePause();
+                            break;
+                        case 'n':
+                        case 'N':
+                            if (e.ctrlKey) {
+                                e.preventDefault();
+                                this.startNewGame();
+                            }
+                            break;
+                        case 'h':
+                        case 'H':
+                            this.showHint();
+                            break;
+                        case 'r':
+                        case 'R':
+                            if (e.ctrlKey) {
+                                e.preventDefault();
+                                this.resetGame();
+                            }
+                            break;
+                        case 'm':
+                        case 'M':
+                            this.toggleSound();
+                            break;
+                        case 'F11':
+                            e.preventDefault();
+                            this.toggleFullscreen();
+                            break;
+                    }
+                    
+                    this.logEvent('KEYBOARD', `Key: ${e.key}, Ctrl: ${e.ctrlKey}`);
+                });
+            }
+            
+            createBoard() {
+                const board = document.getElementById('game-board');
+                const difficulties = {
+                    easy: { rows: 4, cols: 4 },
+                    medium: { rows: 4, cols: 6 },
+                    hard: { rows: 6, cols: 6 }
+                };
+                
+                const { rows, cols } = difficulties[this.difficulty];
+                const totalCards = rows * cols;
+                const pairs = totalCards / 2;
+                
+                // Reset game state
+                this.cards = [];
+                this.flippedCards = [];
+                this.matches = 0;
+                this.moves = 0;
+                this.score = 0;
+                this.timer = 0;
+                this.gameStarted = false;
+                this.gameOver = false;
+                
+                // Clear timer
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                }
+                
+                // Create card pairs
+                const symbols = this.cardSymbols.slice(0, pairs);
+                const cardData = [...symbols, ...symbols];
+                
+                // Shuffle cards
+                for (let i = cardData.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [cardData[i], cardData[j]] = [cardData[j], cardData[i]];
+                }
+                
+                // Set grid layout
+                board.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+                board.innerHTML = '';
+                
+                // Create card elements
+                cardData.forEach((symbol, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.dataset.symbol = symbol;
+                    card.dataset.index = index;
+                    card.innerHTML = '?';
+                    board.appendChild(card);
+                    
+                    this.cards.push({
+                        element: card,
+                        symbol: symbol,
+                        index: index,
+                        flipped: false,
+                        matched: false
+                    });
+                });
+                
+                this.updateDisplay();
+                this.logEvent('BOARD_CREATED', `${this.difficulty}: ${rows}x${cols}`);
+            }
+            
+            handleCardClick(cardElement) {
+                const cardIndex = parseInt(cardElement.dataset.index);
+                const card = this.cards[cardIndex];
+                
+                // Ignore if card is already flipped or matched
+                if (card.flipped || card.matched) return;
+                
+                // Start timer on first move
+                if (!this.gameStarted) {
+                    this.startTimer();
+                    this.gameStarted = true;
+                }
+                
+                // Flip card
+                this.flipCard(card);
+                this.logEvent('CARD_CLICK', `Card ${cardIndex}: ${card.symbol}`);
+                
+                // Check for match
+                if (this.flippedCards.length === 2) {
+                    this.moves++;
+                    this.checkMatch();
+                }
+                
+                this.updateDisplay();
+            }
+            
+            flipCard(card) {
+                card.flipped = true;
+                card.element.classList.add('flipped');
+                card.element.innerHTML = card.symbol;
+                this.flippedCards.push(card);
+                
+                if (this.soundEnabled) {
+                    this.playSound('flip');
+                }
+            }
+            
+            checkMatch() {
+                const [card1, card2] = this.flippedCards;
+                
+                setTimeout(() => {
+                    if (card1.symbol === card2.symbol) {
+                        // Match found
+                        this.handleMatch(card1, card2);
+                    } else {
+                        // No match
+                        this.handleMismatch(card1, card2);
+                    }
+                    
+                    this.flippedCards = [];
+                    this.updateDisplay();
+                    
+                    // Check for game over
+                    if (this.matches === this.cards.length / 2) {
+                        this.endGame();
+                    }
+                }, 1000);
+            }
+            
+            handleMatch(card1, card2) {
+                card1.matched = card2.matched = true;
+                card1.element.classList.add('matched');
+                card2.element.classList.add('matched');
+                card1.element.classList.remove('flipped');
+                card2.element.classList.remove('flipped');
+                
+                this.matches++;
+                this.score += this.calculateMatchScore();
+                
+                if (this.soundEnabled) {
+                    this.playSound('match');
+                }
+                
+                this.logEvent('MATCH_FOUND', `Match ${this.matches}: ${card1.symbol}`);
+            }
+            
+            handleMismatch(card1, card2) {
+                card1.element.classList.add('wrong');
+                card2.element.classList.add('wrong');
+                
+                setTimeout(() => {
+                    card1.flipped = card2.flipped = false;
+                    card1.element.classList.remove('flipped', 'wrong');
+                    card2.element.classList.remove('flipped', 'wrong');
+                    card1.element.innerHTML = '?';
+                    card2.element.innerHTML = '?';
+                }, 500);
+                
+                if (this.soundEnabled) {
+                    this.playSound('wrong');
+                }
+                
+                this.logEvent('MISMATCH', `${card1.symbol} ≠ ${card2.symbol}`);
+            }
+            
+            calculateMatchScore() {
+                const baseScore = 100;
+                const timeBonus = Math.max(0, 50 - Math.floor(this.timer / 10));
+                const movePenalty = Math.max(0, this.moves * 2);
+                return baseScore + timeBonus - movePenalty;
+            }
+            
+            startTimer() {
+                this.timerInterval = setInterval(() => {
+                    if (!this.gamePaused) {
+                        this.timer++;
+                        this.updateDisplay();
+                    }
+                }, 1000);
+            }
+            
+            updateDisplay() {
+                document.getElementById('moves-count').textContent = this.moves;
+                document.getElementById('matches-count').textContent = this.matches;
+                document.getElementById('score').textContent = this.score;
+                
+                const minutes = Math.floor(this.timer / 60);
+                const seconds = this.timer % 60;
+                document.getElementById('timer').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+            
+            startNewGame() {
+                this.createBoard();
+                this.logEvent('NEW_GAME', `Difficulty: ${this.difficulty}`);
+            }
+            
+            togglePause() {
+                if (!this.gameStarted) return;
+                
+                this.gamePaused = !this.gamePaused;
+                
+                if (this.gamePaused) {
+                    this.pauseGame();
+                } else {
+                    this.resumeGame();
+                }
+            }
+            
+            pauseGame() {
+                this.gamePaused = true;
+                document.getElementById('pause-modal').style.display = 'block';
+                document.getElementById('pause-btn').innerHTML = '▶️ เล่นต่อ';
+                this.logEvent('GAME_PAUSED', 'Game paused');
+            }
+            
+            resumeGame() {
+                this.gamePaused = false;
+                document.getElementById('pause-modal').style.display = 'none';
+                document.getElementById('pause-btn').innerHTML = '⏸️ พัก';
+                this.logEvent('GAME_RESUMED', 'Game resumed');
+            }
+            
+            showHint() {
+                if (this.hintsUsed >= 3) {
+                    alert('🚫 คำใบ้หมดแล้ว! (สูงสุด 3 ครั้งต่อเกม)');
+                    return;
+                }
+                
+                const unmatched = this.cards.filter(card => !card.matched && !card.flipped);
+                if (unmatched.length < 2) return;
+                
+                // Find a matching pair
+                for (let i = 0; i < unmatched.length; i++) {
+                    for (let j = i + 1; j < unmatched.length; j++) {
+                        if (unmatched[i].symbol === unmatched[j].symbol) {
+                            // Highlight the pair
+                            unmatched[i].element.classList.add('pulse');
+                            unmatched[j].element.classList.add('pulse');
+                            
+                            setTimeout(() => {
+                                unmatched[i].element.classList.remove('pulse');
+                                unmatched[j].element.classList.remove('pulse');
+                            }, 3000);
+                            
+                            this.hintsUsed++;
+                            this.score -= 20; // Penalty for using hint
+                            this.updateDisplay();
+                            
+                            this.logEvent('HINT_USED', `Hint ${this.hintsUsed}/3`);
+                            return;
+                        }
+                    }
+                }
+            }
+            
+            resetGame() {
+                if (confirm('🔄 รีเซ็ตเกมและเริ่มใหม่?')) {
+                    this.createBoard();
+                    this.hintsUsed = 0;
+                    this.logEvent('GAME_RESET', 'Game reset by user');
+                }
+            }
+            
+            toggleSound() {
+                this.soundEnabled = !this.soundEnabled;
+                const btn = document.getElementById('mute-btn');
+                btn.innerHTML = this.soundEnabled ? '🔊 เสียง' : '🔇 เงียบ';
+                this.logEvent('SOUND_TOGGLE', this.soundEnabled ? 'enabled' : 'disabled');
+            }
+            
+            toggleFullscreen() {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen();
+                } else {
+                    document.exitFullscreen();
+                }
+                this.logEvent('FULLSCREEN_TOGGLE', 'Fullscreen toggled');
+            }
+            
+            showLeaderboard() {
+                const scores = this.getStoredScores();
+                let leaderboard = '🏆 คะแนนสูงสุด:\n\n';
+                
+                if (scores.length === 0) {
+                    leaderboard += 'ยังไม่มีคะแนน\nเล่นเกมจนจบเพื่อบันทึกคะแนน!';
+                } else {
+                    scores.forEach((score, index) => {
+                        leaderboard += `${index + 1}. ${score.score} คะแนน (${score.difficulty}) - ${score.date}\n`;
+                    });
+                }
+                
+                alert(leaderboard);
+                this.logEvent('LEADERBOARD_VIEWED', `${scores.length} scores`);
+            }
+            
+            endGame() {
+                this.gameOver = true;
+                clearInterval(this.timerInterval);
+                
+                const finalScore = this.calculateFinalScore();
+                this.saveScore(finalScore);
+                
+                document.getElementById('final-stats').innerHTML = `
+                    <p><strong>🎯 Final Score:</strong> ${finalScore}</p>
+                    <p><strong>⏱️ Time:</strong> ${document.getElementById('timer').textContent}</p>
+                    <p><strong>🔄 Moves:</strong> ${this.moves}</p>
+                    <p><strong>💡 Hints Used:</strong> ${this.hintsUsed}/3</p>
+                    <p><strong>🎮 Difficulty:</strong> ${this.difficulty}</p>
+                `;
+                
+                document.getElementById('game-over-modal').style.display = 'block';
+                
+                if (this.soundEnabled) {
+                    this.playSound('victory');
+                }
+                
+                this.logEvent('GAME_COMPLETED', `Score: ${finalScore}, Time: ${this.timer}s`);
+            }
+            
+            calculateFinalScore() {
+                let bonus = 0;
+                
+                // Time bonus
+                if (this.timer < 60) bonus += 200;
+                else if (this.timer < 120) bonus += 100;
+                
+                // Move efficiency bonus
+                const optimalMoves = this.cards.length / 2;
+                if (this.moves <= optimalMoves * 1.5) bonus += 150;
+                
+                // Difficulty multiplier
+                const multipliers = { easy: 1, medium: 1.5, hard: 2 };
+                
+                return Math.round((this.score + bonus) * multipliers[this.difficulty]);
+            }
+            
+            saveScore(score) {
+                const scores = this.getStoredScores();
+                scores.push({
+                    score: score,
+                    difficulty: this.difficulty,
+                    time: this.timer,
+                    moves: this.moves,
+                    date: new Date().toLocaleDateString('th-TH')
+                });
+                
+                scores.sort((a, b) => b.score - a.score);
+                scores.splice(10); // Keep top 10 only
+                
+                localStorage.setItem('memoryGameScores', JSON.stringify(scores));
+            }
+            
+            getStoredScores() {
+                const scores = localStorage.getItem('memoryGameScores');
+                return scores ? JSON.parse(scores) : [];
+            }
+            
+            saveGameState() {
+                const gameState = {
+                    cards: this.cards,
+                    timer: this.timer,
+                    moves: this.moves,
+                    score: this.score,
+                    matches: this.matches,
+                    difficulty: this.difficulty,
+                    gameStarted: this.gameStarted
+                };
+                
+                localStorage.setItem('memoryGameState', JSON.stringify(gameState));
+            }
+            
+            closeModal() {
+                document.querySelectorAll('.modal').forEach(modal => {
+                    modal.style.display = 'none';
+                });
+            }
+            
+            playSound(type) {
+                // Simulate sound effects with visual feedback
+                const indicator = document.getElementById('event-indicator');
+                const sounds = {
+                    flip: 'Sound: Flip 🔄',
+                    match: 'Sound: Match ✅',
+                    wrong: 'Sound: Wrong ❌',
+                    victory: 'Sound: Victory 🎉'
+                };
+                
+                indicator.textContent = sounds[type] || 'Sound: ' + type;
+                setTimeout(() => {
+                    indicator.textContent = 'Event Monitor: Ready';
+                }, 1000);
+            }
+            
+            logEvent(eventType, details) {
+                const indicator = document.getElementById('event-indicator');
+                indicator.textContent = `${eventType}: ${details}`;
+                
+                setTimeout(() => {
+                    indicator.textContent = 'Event Monitor: Ready';
+                }, 2000);
+                
+                console.log(`Game Event: ${eventType}`, details);
+            }
+        }
+
+        // Global functions for modal buttons
+        function closeModal() {
+            game.closeModal();
+        }
+
+        function startNewGame() {
+            game.closeModal();
+            game.startNewGame();
+        }
+
+        function resumeGame() {
+            game.resumeGame();
+        }
+
+        // Initialize game
+        let game;
+        document.addEventListener('DOMContentLoaded', function() {
+            game = new MemoryGame();
+            console.log('=== Memory Card Game Loaded ===');
+        });
+    </script>
+</body>
+</html>

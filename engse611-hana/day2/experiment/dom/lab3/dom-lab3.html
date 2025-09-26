@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAB 3: Style และ Attributes</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .demo-section { background: #f5f5f5; padding: 20px; margin: 15px 0; border-radius: 8px; }
+        .demo-btn { background: #FF9800; color: white; padding: 8px 15px; 
+                   border: none; border-radius: 4px; margin: 3px; cursor: pointer; }
+        .demo-btn:hover { background: #F57C00; }
+        .style-demo { background: white; border: 2px solid #ddd; padding: 20px; 
+                     margin: 10px 0; border-radius: 8px; text-align: center; }
+        .control-panel { background: white; padding: 15px; border-radius: 8px; margin: 10px 0; }
+        .slider { width: 100%; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🎯 LAB 3: Style และ Attributes</h1>
+
+    <!-- Section 1: Style Properties -->
+    <div class="demo-section">
+        <h3>🎨 การเปลี่ยน CSS Properties</h3>
+        <div id="style-target" class="style-demo">
+            <h4>ข้อความทดสอบ</h4>
+            <p>กล่องนี้จะเปลี่ยนสไตล์ตามปุ่มที่กด</p>
+        </div>
+        
+        <div class="control-panel">
+            <button class="demo-btn" onclick="changeColors()">เปลี่ยนสี</button>
+            <button class="demo-btn" onclick="changeSize()">เปลี่ยนขนาด</button>
+            <button class="demo-btn" onclick="changeBorder()">เปลี่ยนขอบ</button>
+            <button class="demo-btn" onclick="animateBox()">Animation</button>
+            <button class="demo-btn" onclick="resetStyles()">รีเซ็ต</button>
+        </div>
+
+        <div class="control-panel">
+            <h4>🎛️ ควบคุมแบบ Interactive:</h4>
+            <label>สี Background: <input type="color" id="bgColor" value="#ffffff" onchange="updateBackground()"></label><br>
+            <label>สี Text: <input type="color" id="textColor" value="#000000" onchange="updateTextColor()"></label><br>
+            <label>ขนาดตัวอักษร: <input type="range" id="fontSize" min="12" max="48" value="16" class="slider" onchange="updateFontSize()"> 
+                   <span id="fontSizeValue">16px</span></label><br>
+            <label>ความโปร่งใส: <input type="range" id="opacity" min="0" max="100" value="100" class="slider" onchange="updateOpacity()"> 
+                   <span id="opacityValue">100%</span></label>
+        </div>
+    </div>
+
+    <!-- Section 2: Attributes -->
+    <div class="demo-section">
+        <h3>🏷️ การจัดการ Attributes</h3>
+        <div class="control-panel">
+            <img id="demo-image" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='150'%3E%3Crect width='200' height='150' fill='%23e0e0e0'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='0.3em'%3EDemo Image%3C/text%3E%3C/svg%3E" 
+                 alt="รูปภาพตัวอย่าง" style="border: 2px solid #ddd; border-radius: 8px; display: block; margin: 10px auto;">
+            
+            <div style="text-align: center; margin: 15px 0;">
+                <button class="demo-btn" onclick="changeImageSize()">เปลี่ยนขนาดรูป</button>
+                <button class="demo-btn" onclick="changeImageSrc()">เปลี่ยนรูป</button>
+                <button class="demo-btn" onclick="toggleImageBorder()">เปิด/ปิด ขอบ</button>
+                <button class="demo-btn" onclick="showImageInfo()">แสดงข้อมูลรูป</button>
+            </div>
+        </div>
+
+        <div class="control-panel">
+            <h4>📋 Input Attributes:</h4>
+            <input type="text" id="demo-input" placeholder="ทดสอบ input" style="padding: 8px; margin: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            <br>
+            <button class="demo-btn" onclick="disableInput()">Disable</button>
+            <button class="demo-btn" onclick="enableInput()">Enable</button>
+            <button class="demo-btn" onclick="changeInputType()">เปลี่ยนประเภท</button>
+            <button class="demo-btn" onclick="addInputValidation()">เพิ่ม Validation</button>
+        </div>
+
+        <div id="attribute-info" style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
+            ข้อมูล Attributes จะแสดงที่นี่
+        </div>
+    </div>
+
+    <!-- Section 3: Classes -->
+    <div class="demo-section">
+        <h3>📚 การจัดการ CSS Classes</h3>
+        <div id="class-target" style="background: white; padding: 20px; margin: 10px 0; border-radius: 8px; text-align: center; transition: all 0.3s ease;">
+            <h4>ทดสอบ CSS Classes</h4>
+            <p>กล่องนี้จะเปลี่ยน Class ตามปุ่มที่กด</p>
+        </div>
+
+        <div class="control-panel">
+            <button class="demo-btn" onclick="addClass()">เพิ่ม Class</button>
+            <button class="demo-btn" onclick="removeClass()">ลบ Class</button>
+            <button class="demo-btn" onclick="toggleClass()">Toggle Class</button>
+            <button class="demo-btn" onclick="replaceClass()">เปลี่ยน Class</button>
+            <button class="demo-btn" onclick="showClasses()">แสดง Classes</button>
+        </div>
+    </div>
+
+    <script>
+        // LAB 3.1: Style Properties
+        function changeColors() {
+            let target = document.getElementById('style-target');
+            let colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD'];
+            let randomColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            target.style.backgroundColor = randomColor;
+            target.style.color = 'white';
+            target.style.textShadow = '1px 1px 2px rgba(0,0,0,0.5)';
+            
+            console.log('เปลี่ยนสีเป็น:', randomColor);
+        }
+
+        function changeSize() {
+            let target = document.getElementById('style-target');
+            let sizes = ['150%', '120%', '80%', '200%'];
+            let randomSize = sizes[Math.floor(Math.random() * sizes.length)];
+            
+            target.style.transform = `scale(${randomSize.replace('%', '') / 100})`;
+            target.style.transition = 'transform 0.3s ease';
+            
+            console.log('เปลี่ยนขนาดเป็น:', randomSize);
+        }
+
+        function changeBorder() {
+            let target = document.getElementById('style-target');
+            let borders = [
+                '5px solid #ff0000',
+                '3px dashed #00ff00',
+                '8px dotted #0000ff',
+                '10px double #ff00ff',
+                '5px ridge #ffff00'
+            ];
+            let randomBorder = borders[Math.floor(Math.random() * borders.length)];
+            
+            target.style.border = randomBorder;
+            target.style.borderRadius = Math.floor(Math.random() * 30) + 'px';
+            
+            console.log('เปลี่ยนขอบเป็น:', randomBorder);
+        }
+
+        function animateBox() {
+            let target = document.getElementById('style-target');
+            
+            // Animation sequence
+            target.style.transition = 'all 0.5s ease';
+            target.style.transform = 'rotate(10deg) scale(1.1)';
+            target.style.boxShadow = '0 10px 20px rgba(0,0,0,0.3)';
+            
+            setTimeout(() => {
+                target.style.transform = 'rotate(-10deg) scale(0.9)';
+            }, 250);
+            
+            setTimeout(() => {
+                target.style.transform = 'rotate(0deg) scale(1)';
+                target.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+            }, 500);
+            
+            console.log('Animation เล่นแล้ว');
+        }
+
+        function resetStyles() {
+            let target = document.getElementById('style-target');
+            target.style.cssText = ''; // ลบ inline styles ทั้งหมด
+            target.className = 'style-demo'; // รีเซ็ต class
+            
+            console.log('รีเซ็ต styles แล้ว');
+        }
+
+        // Interactive Controls
+        function updateBackground() {
+            let color = document.getElementById('bgColor').value;
+            document.getElementById('style-target').style.backgroundColor = color;
+        }
+
+        function updateTextColor() {
+            let color = document.getElementById('textColor').value;
+            document.getElementById('style-target').style.color = color;
+        }
+
+        function updateFontSize() {
+            let size = document.getElementById('fontSize').value;
+            document.getElementById('style-target').style.fontSize = size + 'px';
+            document.getElementById('fontSizeValue').textContent = size + 'px';
+        }
+
+        function updateOpacity() {
+            let opacity = document.getElementById('opacity').value;
+            document.getElementById('style-target').style.opacity = opacity / 100;
+            document.getElementById('opacityValue').textContent = opacity + '%';
+        }
+
+        // LAB 3.2: Attributes
+        function changeImageSize() {
+            let img = document.getElementById('demo-image');
+            let sizes = ['150px', '200px', '250px', '100px'];
+            let randomSize = sizes[Math.floor(Math.random() * sizes.length)];
+            
+            img.setAttribute('width', randomSize);
+            img.style.width = randomSize;
+            
+            console.log('เปลี่ยนขนาดรูปเป็น:', randomSize);
+        }
+
+        function changeImageSrc() {
+            let img = document.getElementById('demo-image');
+            let colors = ['ff6b6b', '4ecdc4', '45b7d1', '96ceb4', 'ffeaa7'];
+            let randomColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            let newSrc = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='150'%3E%3Crect width='200' height='150' fill='%23${randomColor}'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='0.3em' fill='white'%3ENew Image%3C/text%3E%3C/svg%3E`;
+            
+            img.setAttribute('src', newSrc);
+            img.setAttribute('alt', 'รูปภาพใหม่ สี ' + randomColor);
+            
+            console.log('เปลี่ยนรูปภาพแล้ว');
+        }
+
+        function toggleImageBorder() {
+            let img = document.getElementById('demo-image');
+            
+            if (img.style.border === '' || img.style.border === '2px solid rgb(221, 221, 221)') {
+                img.style.border = '5px solid #ff0000';
+                img.style.borderRadius = '15px';
+            } else {
+                img.style.border = '2px solid #ddd';
+                img.style.borderRadius = '8px';
+            }
+            
+            console.log('Toggle border รูปภาพ');
+        }
+
+        function showImageInfo() {
+            let img = document.getElementById('demo-image');
+            let info = document.getElementById('attribute-info');
+            
+            info.innerHTML = `
+                <h4>ข้อมูล Image Attributes:</h4>
+                <ul>
+                    <li><strong>src:</strong> ${img.getAttribute('src').substring(0, 50)}...</li>
+                    <li><strong>alt:</strong> ${img.getAttribute('alt')}</li>
+                    <li><strong>width:</strong> ${img.getAttribute('width') || 'ไม่ได้กำหนด'}</li>
+                    <li><strong>style:</strong> ${img.getAttribute('style') || 'ไม่ได้กำหนด'}</li>
+                    <li><strong>id:</strong> ${img.getAttribute('id')}</li>
+                </ul>
+                <p><strong>hasAttribute('width'):</strong> ${img.hasAttribute('width')}</p>
+                <p><strong>hasAttribute('height'):</strong> ${img.hasAttribute('height')}</p>
+            `;
+        }
+
+        // Input Attributes
+        function disableInput() {
+            let input = document.getElementById('demo-input');
+            input.setAttribute('disabled', 'true');
+            input.style.backgroundColor = '#f0f0f0';
+            
+            console.log('Input disabled');
+        }
+
+        function enableInput() {
+            let input = document.getElementById('demo-input');
+            input.removeAttribute('disabled');
+            input.style.backgroundColor = 'white';
+            
+            console.log('Input enabled');
+        }
+
+        function changeInputType() {
+            let input = document.getElementById('demo-input');
+            let types = ['text', 'password', 'email', 'number', 'tel'];
+            let currentType = input.getAttribute('type') || 'text';
+            let currentIndex = types.indexOf(currentType);
+            let nextType = types[(currentIndex + 1) % types.length];
+            
+            input.setAttribute('type', nextType);
+            input.setAttribute('placeholder', `ทดสอบ ${nextType} input`);
+            
+            console.log('เปลี่ยน input type เป็น:', nextType);
+        }
+
+        function addInputValidation() {
+            let input = document.getElementById('demo-input');
+            
+            input.setAttribute('required', 'true');
+            input.setAttribute('minlength', '3');
+            input.setAttribute('maxlength', '20');
+            input.setAttribute('pattern', '[a-zA-Zก-๙\\s]+');
+            input.setAttribute('title', 'กรุณาใส่ชื่อ 3-20 ตัวอักษร (ไม่มีตัวเลข)');
+            
+            console.log('เพิ่ม validation แล้ว');
+        }
+
+        // LAB 3.3: CSS Classes
+        // สร้าง CSS classes แบบ dynamic
+        let style = document.createElement('style');
+        style.textContent = `
+            .highlight { background: #ffeb3b !important; color: #333 !important; }
+            .shadow { box-shadow: 0 8px 16px rgba(0,0,0,0.3) !important; }
+            .rounded { border-radius: 25px !important; }
+            .large { font-size: 1.5em !important; }
+            .rotate { transform: rotate(5deg) !important; }
+            .gradient { background: linear-gradient(45deg, #667eea, #764ba2) !important; color: white !important; }
+        `;
+        document.head.appendChild(style);
+
+        function addClass() {
+            let target = document.getElementById('class-target');
+            let classes = ['highlight', 'shadow', 'rounded', 'large', 'rotate'];
+            let randomClass = classes[Math.floor(Math.random() * classes.length)];
+            
+            target.classList.add(randomClass);
+            
+            console.log('เพิ่ม class:', randomClass);
+            console.log('Classes ปัจจุบัน:', target.classList.toString());
+        }
+
+        function removeClass() {
+            let target = document.getElementById('class-target');
+            let classes = Array.from(target.classList);
+            
+            if (classes.length > 0) {
+                let randomClass = classes[Math.floor(Math.random() * classes.length)];
+                target.classList.remove(randomClass);
+                
+                console.log('ลบ class:', randomClass);
+                console.log('Classes ปัจจุบัน:', target.classList.toString());
+            } else {
+                console.log('ไม่มี class ให้ลบ');
+            }
+        }
+
+        function toggleClass() {
+            let target = document.getElementById('class-target');
+            target.classList.toggle('gradient');
+            
+            console.log('Toggle class: gradient');
+            console.log('Classes ปัจจุบัน:', target.classList.toString());
+        }
+
+        function replaceClass() {
+            let target = document.getElementById('class-target');
+            
+            if (target.classList.contains('highlight')) {
+                target.classList.replace('highlight', 'shadow');
+                console.log('เปลี่ยน highlight เป็น shadow');
+            } else if (target.classList.contains('shadow')) {
+                target.classList.replace('shadow', 'rounded');
+                console.log('เปลี่ยน shadow เป็น rounded');
+            } else {
+                target.classList.add('highlight');
+                console.log('เพิ่ม highlight');
+            }
+            
+            console.log('Classes ปัจจุบัน:', target.classList.toString());
+        }
+
+        function showClasses() {
+            let target = document.getElementById('class-target');
+            let info = document.getElementById('attribute-info');
+            
+            info.innerHTML = `
+                <h4>ข้อมูล CSS Classes:</h4>
+                <p><strong>classList:</strong> ${target.classList.toString() || 'ไม่มี class'}</p>
+                <p><strong>จำนวน classes:</strong> ${target.classList.length}</p>
+                <p><strong>className:</strong> "${target.className}"</p>
+                
+                <h4>Class Methods ที่ใช้ได้:</h4>
+                <ul>
+                    <li><code>classList.add('class')</code> - เพิ่ม class</li>
+                    <li><code>classList.remove('class')</code> - ลบ class</li>
+                    <li><code>classList.toggle('class')</code> - เปิด/ปิด class</li>
+                    <li><code>classList.contains('class')</code> - ตรวจสอบ class</li>
+                    <li><code>classList.replace('old', 'new')</code> - เปลี่ยน class</li>
+                </ul>
+            `;
+        }
+
+        // เริ่มต้น
+        console.log('=== DOM LAB 3 เริ่มต้น ===');
+        console.log('🎨 ทดลองเปลี่ยน Style, Attributes และ Classes');
+        
+        // แสดงข้อมูลเริ่มต้น
+        showImageInfo();
+    </script>
+</body>
+</html>
