@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1759507800949.3071,
+    "rating": 3,
+    "comment": "sdsdasda",
+    "email": "sc.sorachot@gmail.com",
+    "anonymous": false,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "createdAt": "2025-10-03T16:10:00.949Z"
+  },
+  {
+    "id": 1759507844660.3257,
+    "rating": 5,
+    "comment": "asdasdsadsdasdsd",
+    "email": "sc.sorachot@gmail.com",
+    "anonymous": false,
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "createdAt": "2025-10-03T16:10:44.660Z"
+  }
+]

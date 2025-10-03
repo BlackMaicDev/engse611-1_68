@@ -1,0 +1,20 @@
+{
+  "name": "lab-4-1-basic-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start:http": "node http-server.js",
+    "start:express": "node express-server.js",
+    "dev:http": "nodemon http-server.js",
+    "dev:express": "nodemon express-server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "express": "^5.1.0",
+    "nodemon": "^3.1.10"
+  }
+}
